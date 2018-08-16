@@ -11,7 +11,7 @@
 
     <title>
         
-        Hyw的博客 | Neo&#39;s Blog
+        Elasticsearch中的基本概念 - Hyw的博客 | Neo&#39;s Blog
         
     </title>
 
@@ -67,7 +67,7 @@
                     <span>标签</span>
                 </a>
             </li>
-            <li  class=active >
+            <li >
                 <a href="/archive">
                     <i class="iconfont icon-guidang2"></i>
                     <span>存档</span>
@@ -89,6 +89,11 @@
             
         </ul>
     </div>
+    
+        <div id="toc" class="toc-article">
+    
+</div>
+
     
 </div>
 
@@ -116,135 +121,148 @@
         
 
 
-<!-- 归档列表 -->
+<div class="post-container">
+    <div class="post-title">
+        Elasticsearch中的基本概念
+    </div>
 
-<div class="archives-container">
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2018-08-02 00:00:00</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#Elasticsearch" title="Elasticsearch">Elasticsearch</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#搜索技术" title="搜索技术">搜索技术</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+</span>
+    </div>
+    <div class="post-content ">
+        <ul>
+<li>索引词(term)</li>
+</ul>
+<blockquote>
+<p>索引词（term）是一个能够被索引的精确值，区分大小写，可以通过term查询进行精确的搜索。</p>
+</blockquote>
+<ul>
+<li><p>文本(text)</p>
+<blockquote>
+<p>文本是一段普通的非结构化文字。通常，文本会被分析成一个个的索引词，存储在Elasticsearch的索引库中。为了让文本能够进行搜索，文本字段需要事先进行分析；当对文本中的关键字进行查询的时候，搜索引擎应该根据搜索条件搜索出原文本。</p>
+</blockquote>
+</li>
+<li><p>分析(analysis)</p>
+</li>
+</ul>
+<blockquote>
+<p>分析是将文本转换为索引词的过程，分析的结果依赖于分词器。</p>
+</blockquote>
+<ul>
+<li>集群(cluster)</li>
+</ul>
+<blockquote>
+<p>集群由一个或多个节点组成，对外提供服务，对外提供索引和搜索功能。</p>
+</blockquote>
+<ul>
+<li>节点(node)</li>
+</ul>
+<blockquote>
+<p>一个节点是一个逻辑独立的服务，它是集群的一部分，可以存储数据，并参与集群的索引和搜索功能。</p>
+</blockquote>
+<p>一个节点可以被配置为加入一个特点的集群。</p>
+<ul>
+<li>路由(routing)</li>
+</ul>
+<blockquote>
+<p>当存储一个文档的时候，它会存储在唯一的主分片中，具体哪个分片是通过散列值进行选择。</p>
+</blockquote>
+<ul>
+<li>分片(shard)</li>
+</ul>
+<blockquote>
+<p>分片是lucene实例。索引是指向主分片和副本分片的逻辑空间。</p>
+</blockquote>
+<p>一个索引可以存储很大的数据，这些空间可以超过一个节点的物理存储的限制。为了解决这种存储限制，以及随之带来的单机搜索大数据的性能问题，Elasticsearch将索引分解成多个分片，每个分片都是一个全功能的、独立的单元，可以托管在集群中的任何节点。</p>
+<ul>
+<li>主分片(primary shard)</li>
+</ul>
+<blockquote>
+<p>每个文档可以存储在一个分片中，存储一个文档时，系统会首先存储在主分片中，然后复制到不同的分片。</p>
+</blockquote>
+<ul>
+<li>副本分片(replica sahrd)</li>
+</ul>
+<blockquote>
+<p>每一个分片有零个或者多个分片，副本分片是主分片的复制，主要有两个目的：</p>
+<ol>
+<li>增加高可用性</li>
+<li>提高性能。默认情况下，一个主分片会有一个副本分片，但是副本数量可以在后面动态地配置增加。</li>
+</ol>
+</blockquote>
+<ul>
+<li>索引(index)</li>
+</ul>
+<blockquote>
+<p>索引是具有相同结构的文档集合。</p>
+</blockquote>
+<ul>
+<li>类型(type)</li>
+</ul>
+<blockquote>
+<p>在索引中，可以定义一个或者多个类型。</p>
+</blockquote>
+<p>但是在后续的版本中，type可能会被限制为一种类型，甚至取消。</p>
+<ul>
+<li>文档(document)</li>
+</ul>
+<blockquote>
+<p> 文档是存储在Elasticsearch中的一个json格式的字符串。它就像关系数据库中表的一行。</p>
+</blockquote>
+<ul>
+<li>映射(mapping)</li>
+</ul>
+<blockquote>
+<p>映射像关系数据库中的表结构。</p>
+</blockquote>
+<ul>
+<li>字段(field)</li>
+</ul>
+<blockquote>
+<p>文档中包含零个或者多个字段，文档可以是一个简单的值（例如字符串、整数、日期），也可以是一个数组或者嵌套对象。</p>
+</blockquote>
+<ul>
+<li>来源字段(source field)</li>
+</ul>
+<blockquote>
+<p>默认情况下，你的原文档将存储在_source字段中，当你查询的时也是返回这个字段。</p>
+</blockquote>
+<ul>
+<li>主键(ID)</li>
+</ul>
+<blockquote>
+<p>ID是一个文件的为一个标识。</p>
+</blockquote>
 
-<div class="one-tag-list">
-                <span class="fa fa-calendar-times-o listing-seperator" id="2018">
-                    <span class="tag-text">2018</span>
-                </span>
-    <ul>
         
-        <!-- <li class="listing-item">
-        <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
-        <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
-        </li> -->
-        <li >
-            <span>08-14</span>
-            <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-            <a href="/2018/08/14/金字塔内部的结构/">
-                        <span>
-                            金字塔内部的结构
-                        </span>
-            </a>
-            <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
-        </li>
-        
-        <!-- <li class="listing-item">
-        <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
-        <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
-        </li> -->
-        <li >
-            <span>08-12</span>
-            <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-            <a href="/2018/08/12/为什么要使用金字塔结构/">
-                        <span>
-                            为什么要使用金字塔结构
-                        </span>
-            </a>
-            <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
-        </li>
-        
-        <!-- <li class="listing-item">
-        <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
-        <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
-        </li> -->
-        <li >
-            <span>08-12</span>
-            <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-            <a href="/2018/08/12/金字塔原理概述/">
-                        <span>
-                            金字塔原理概述
-                        </span>
-            </a>
-            <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
-        </li>
-        
-        <!-- <li class="listing-item">
-        <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
-        <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
-        </li> -->
-        <li >
-            <span>08-02</span>
-            <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-            <a href="/2018/08/02/Elasticsearch中的基本概念/">
-                        <span>
-                            Elasticsearch中的基本概念
-                        </span>
-            </a>
-            <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
-        </li>
-        
-        <!-- <li class="listing-item">
-        <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
-        <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
-        </li> -->
-        <li >
-            <span>06-09</span>
-            <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-            <a href="/2018/06/09/CORS-跨域请求资源协议/">
-                        <span>
-                            CORS-跨域请求资源的协议
-                        </span>
-            </a>
-            <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
-        </li>
-        
-
-    </ul>
+            <div class="donate-container">
+    <div class="donate-button">
+        <button id="donate-button">赞赏</button>
+    </div>
+    <div class="donate-img-container hide" id="donate-img-container">
+        <img id="donate-img" src="" data-src="/img/eth.png">
+        <p> 感谢鼓励(ETH:0xB0CAC88b5B5F893dD05aa46F0f7d9708C4dAFA3b) </p>
+    </div>
 </div>
 
-<div class="one-tag-list">
-                <span class="fa fa-calendar-times-o listing-seperator" id="2017">
-                    <span class="tag-text">2017</span>
-                </span>
-    <ul>
         
-        <!-- <li class="listing-item">
-        <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
-        <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
-        </li> -->
-        <li >
-            <span>11-08</span>
-            <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-            <a href="/2017/11/08/MySQL体系结构和存储引擎/">
-                        <span>
-                            MySQL体系结构和存储引擎
-                        </span>
-            </a>
-            <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
-        </li>
-        
-        <!-- <li class="listing-item">
-        <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
-        <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
-        </li> -->
-        <li >
-            <span>11-05</span>
-            <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-            <a href="/2017/11/05/基于Hexo-github托管静态页面/">
-                        <span>
-                            基于Hexo+github创建静态页面博客
-                        </span>
-            </a>
-            <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
-        </li>
-        
-
-    </ul>
-</div>
-
+        <div id="comment-container">
+        </div>
+    </div>
 </div>
     </div>
 </div>
@@ -330,10 +348,24 @@
     // We expose some of the variables needed by the front end
     window.hexo_search_path = "search.json"
     window.hexo_root = "/"
-    window.isPost = false
+    window.isPost = true
 </script>
 <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
 <script src="/js/index.js"></script>
 <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script src="/js/gitment.js"></script>
+<script>
+    var gitment = new Gitment({
+        id: 'Elasticsearch中的基本概念',
+        owner: 'shallotsh',
+        repo: 'shallotsh.github.io',
+        oauth: {
+            client_id: 'b3260fcb1f223a89bf9c',
+            client_secret: '989da3c54db88efce806e490362c800efe7d886f',
+        },
+    })
+    gitment.render('comment-container')
+</script>
 
 </html>
