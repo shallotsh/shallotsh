@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="深思博文">
+    <meta name="keyword"  content="新美大">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        DDD入门 - Hyw的博客 | Neo&#39;s Blog
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <!--<i> Talk is cheap, show me the article. </i> -->
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+	<!--
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/img/avatar.jpg" />
+        </div>
+        <div class="name">
+            <i>Hyw</i>
+        </div>
+    </div>
+	--> 
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>搜索</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是DDD"><span class="toc-text">什么是DDD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#我能DDD吗"><span class="toc-text">我能DDD吗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么我们需要DDD"><span class="toc-text">为什么我们需要DDD</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#难以捉摸的业务价值"><span class="toc-text">难以捉摸的业务价值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DDD如何帮助我们"><span class="toc-text">DDD如何帮助我们</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#处理领域的复杂性"><span class="toc-text">处理领域的复杂性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何DDD"><span class="toc-text">如何DDD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用DDD的业务价值"><span class="toc-text">使用DDD的业务价值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现DDD面临的挑战"><span class="toc-text">实现DDD面临的挑战</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+</div>
+
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <!-- <i> Talk is cheap, show me the article. </i> -->
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        DDD入门
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2018-08-20 22:33:23</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#领域驱动设计" title="领域驱动设计">领域驱动设计</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#DDD入门" title="DDD入门">DDD入门</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#读书笔记" title="读书笔记">读书笔记</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+</span>
+    </div>
+    <div class="post-content ">
+        <h2 id="什么是DDD"><a href="#什么是DDD" class="headerlink" title="什么是DDD"></a>什么是DDD</h2><p>DDD，即Domain-Driven Design，领域驱动设计，起源于2003年著名建模专家Eric Evans发表了他最具影响力的著名书籍“Domain-Driven Design –Tackling Complexity in the Heart of Software”。</p>
+<p>到底什么是DDD？到现在我也没法给出一个准确的定义，只能先简单介绍下自己的认知。DDD其实并非“标新立异”的新事物，而是对传统的以数据为中心的建模方式的思考。</p>
+<p>领域驱动设计不是一种具体的架构设计，而是一种程序设计建模思维和一种基于通用语言的有效沟通方式。</p>
+<h2 id="我能DDD吗"><a href="#我能DDD吗" class="headerlink" title="我能DDD吗"></a>我能DDD吗</h2><p>任何参与到目标系统/业务的人员都可以DDD，不论你的职位。</p>
+<blockquote>
+<p>DDD首先不是关于技术的，而是关于讨论、聆听、理解、发现和业务价值的，而这些都是为了将知识集中起来。</p>
+</blockquote>
+<p>团队（或者项目）中参与DDD的所有成员，都是基于一套内部的通用语言来表达业务逻辑和系统设计。如果你不是技术人员，但是了解业务，那么可以为通用语言做出贡献，可以辅助验证领域模型；如果你是一位技术精湛的成员，但这并不代表你已经具备了相当的业务能力，但是你可以跟领域专家一起设计更好的通用语言和领域模型。</p>
+<p>那么团队中，谁才是领域专家呢？</p>
+<blockquote>
+<p>领域专家并不是一个职位，他可以是精通业务的任何人。他们可能了解更多的业务领域的背景知识，他们可能是软件产品的设计者，甚至可能是销售员。</p>
+</blockquote>
+<p>如果你是一位技术人员，最好能够将那些不怎么使用技术语言的人（领域专家）加进自己的团队，大家可以相互学习，发现自己的业务盲区，最终达到整个团队所有成员都在学习和成长。</p>
+<p>什么又是领域模型呢？</p>
+<blockquote>
+<p>领域模型是关于某个特定业务领域的软件模型。通常，领域模型通过对象模型来实现，这些对象同时包括了数据和行为，并且表达了准确的业务含义。</p>
+</blockquote>
+<p>不同角色的人都能从DDD中获益。</p>
+<ul>
+<li>新手开发者，可以避免在迷失在重复性的工作中；</li>
+<li>中级开发者可以提升对事物的洞察力，即对业务的理解和思考能力；</li>
+<li>高级开发者可以通过引入DDD来提高整个团队的“战斗力”；</li>
+<li>领域专家可以通过通用语言与技术人员无障碍地沟通，甚至在一起工作</li>
+<li>对于项目经理关注的排期和交付，也是十分有帮助</li>
+</ul>
+<h2 id="为什么我们需要DDD"><a href="#为什么我们需要DDD" class="headerlink" title="为什么我们需要DDD"></a>为什么我们需要DDD</h2><figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DRY—— Don<span class="symbol">'t</span> repeat yourself.</span><br></pre></td></tr></table></figure>
+<p>应用DDD带来的好处：</p>
+<ul>
+<li>使得领域专家和开发者在一起工作，这样开发出来的软件能够准确地表达业务规则——此时的软件就像如果领域专家是编码人员时所开发出来的一样</li>
+<li>可以帮助业务人员自我提高</li>
+<li>可以确保软件知识不只是掌握在少数人手中（对于成员流动性较大的互联网企业尤为重要）。</li>
+<li>代码即是设计，设计即是代码。</li>
+<li>领域专家、开发者和软件之间不存在需要“翻译”的地方</li>
+</ul>
+<p>听起来DDD近乎是完美的，但实际上还需要将设计落地到具体的业务上。</p>
+<h3 id="难以捉摸的业务价值"><a href="#难以捉摸的业务价值" class="headerlink" title="难以捉摸的业务价值"></a>难以捉摸的业务价值</h3><blockquote>
+<p>具有真正业务价值的软件能够很好地符合业务战略，并且可以将竞争优势融合到解决方案中。</p>
+</blockquote>
+<p>应用DDD，团队中的成员通过内部的通用语言来沟通，减少了团队中不同角色之间的沟通成本，同时可以大大减少沟通理解上的偏差，将更多的精力投入到领域模型的设计和实现。</p>
+<p>一方面降低了沟通和业务需求传递的成本，另一方面团队内部良好的沟通使得软件的工作方式符合真实的业务策略设计，从而提升软件的业务价值。</p>
+<h3 id="DDD如何帮助我们"><a href="#DDD如何帮助我们" class="headerlink" title="DDD如何帮助我们"></a>DDD如何帮助我们</h3><ul>
+<li>将领域专家和开发人员聚集在一起，这样所开发出来的软件能够反映出领域专家的思维模型，交付最具业务价值的软件</li>
+<li>DDD关注业务战略</li>
+<li>战术设计建模工具，满足了软件真正的技术需求</li>
+</ul>
+<h3 id="处理领域的复杂性"><a href="#处理领域的复杂性" class="headerlink" title="处理领域的复杂性"></a>处理领域的复杂性</h3><p>基于DDD强大的威力和实施的难度，DDD首先应该应用在重要的业务场景下。对于那些重要的、复杂的，且能带来可观回报的软件，是最值得投入的，这样的软件模型命名为“核心域”，那些相对次要的称为“支撑子域”</p>
+<blockquote>
+<p>在使用DDD时，我们应该采用简单的方式对复杂领域进行建模，而不是使问题变得更加复杂。</p>
+</blockquote>
+<p>不同业务领域对于复杂性性的定义是不一样的，通常会通过判断业务（或者说系统）是不是重要的，然后决定开发的系统是否值得做出DDD投入。</p>
+<p>应用DDD设计的系统，其领域模型能表达明确的业务含义，而不是只是一堆代码围绕一堆数据运算，不懂业务背景的人难以看出其背后逻辑的含义。</p>
+<h2 id="如何DDD"><a href="#如何DDD" class="headerlink" title="如何DDD"></a>如何DDD</h2><p>通用语言和限界上下文同时构成了DDD的两大支柱。</p>
+<blockquote>
+<p>通用语言是团队共享的语言。</p>
+</blockquote>
+<p>通用语言是整个团队创建的一门语言。在最开始的时候，通用语言可能只包含领域专家使用的术语，但随着时间推移会不断壮大。</p>
+<p>如何掌握通用语言？</p>
+<ul>
+<li>同时绘制物理模型图和概念模型图，并标以名字和行为</li>
+<li>创建一些包含简单定义的术语表</li>
+<li>团队内部沟通讨论</li>
+</ul>
+<blockquote>
+<p>由于团队交流和代码才是对通用语言的持续表达，你应该尝试抛弃哪些模型图、术语表和文档。</p>
+</blockquote>
+<p>因为通用语言的改进直接反应在系统的源码中，而之前设计的文档和模型图通常不会同步被更新。</p>
+<p>然后通用语言也有其限制：</p>
+<ul>
+<li>通用语言尽在团队范围内使用，并且表达了一个单一的领域模型</li>
+<li>限界上下文和通用语言一一对应</li>
+<li>只有当团队工作在一个独立的限界上下文中是，通用语言才是“通用”的</li>
+</ul>
+<h2 id="使用DDD的业务价值"><a href="#使用DDD的业务价值" class="headerlink" title="使用DDD的业务价值"></a>使用DDD的业务价值</h2><blockquote>
+<ol>
+<li>你获得了一个非常有用的领域模型</li>
+<li>你的业务得到更准确的定义和理解</li>
+<li>领域专家可以为软件设计做出贡献</li>
+<li>更好的用户体验</li>
+<li>清晰的模型边界</li>
+<li>更好的企业架构</li>
+<li>敏捷、迭代和持续建模</li>
+<li>使用战略和战术新工具</li>
+</ol>
+</blockquote>
+<h2 id="实现DDD面临的挑战"><a href="#实现DDD面临的挑战" class="headerlink" title="实现DDD面临的挑战"></a>实现DDD面临的挑战</h2><p>三点最常见的挑战：</p>
+<ul>
+<li>为创建通用语言腾出时间和经历</li>
+<li>持续地将领域专家引入项目</li>
+<li>改变开发对领域的思考方式</li>
+</ul>
+<p>我们需要花费大量的时间和精力来思考业务领域，研究概念和术语，并和领域专家交流，以发现、捕捉和改进通用语言。就个人而言，公司业务的变化，通常会引入新的通用语言，如何定义新的通用语言十分重要，因为后期改进的代价要大得多。</p>
+<p>引入领域专家也不是一件容易的事。特别是在一些小公司，或者创业公司，通常你的老大或者老板就是为数不多的领域专家，然后他们通常有很多会议或者外出，这样导致你可能很难找到一位经常可以一起讨论的领域专家。</p>
+<p>对于已经习惯了数据驱动开发的技术人员来说，要适应DDDD面向业务的思考问题方式就不是一件容易的事儿。更要命的事，几乎所有技术的入门教程都不会结合业务。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>《实现领域驱动设计》</li>
+</ul>
+
+        
+            <div class="donate-container">
+    <div class="donate-button">
+        <button id="donate-button">赞赏</button>
+    </div>
+    <div class="donate-img-container hide" id="donate-img-container">
+        <img id="donate-img" src="" data-src="/img/eth.png">
+        <p> 感谢鼓励(ETH:0xB0CAC88b5B5F893dD05aa46F0f7d9708C4dAFA3b) </p>
+    </div>
+</div>
+
+        
+        <div id="comment-container">
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/shallotsh">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+        <li>
+            <a target="_blank" href="http://weibo.com/indexdance">
+                            <span class="fa-stack fa-lg">
+                                  <i class="iconfont icon-weibo"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/shallotsh">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/亚武-黄-728a37101">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+        <span>/</span>
+        
+        <span><a href="https://www.github.com">GitHub</a></span>
+        <span>/</span>
+        
+        <span><a href="http://ifeve.com/">并发编程网</a></span>
+        <span>/</span>
+        
+        <span><a href="https://tech.meituan.com/">美团技术博客</a></span>
+        <span>/</span>
+        
+    </p>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Hosted by <a href="https://pages.coding.me" style="font-weight: bold;">Coding Pages</a> Created By <a href="https://hexo.io/">Hexo</a> 
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<script src="/js/gitment.js"></script>
+<script>
+    var gitment = new Gitment({
+        id: 'DDD入门',
+        owner: 'shallotsh',
+        repo: 'shallotsh.github.io',
+        oauth: {
+            client_id: 'b3260fcb1f223a89bf9c',
+            client_secret: '989da3c54db88efce806e490362c800efe7d886f',
+        },
+    })
+    gitment.render('comment-container')
+</script>
+
+</html>
