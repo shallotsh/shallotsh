@@ -161,14 +161,10 @@
 <p>关系型数据库天生就是解决具有复杂事务场景的问题，关系型数据库完全满足ACID的特性。</p>
 <p>ACID指的是：</p>
 <ul>
-<li><p>A: Atomicity，原子性</p>
-</li>
-<li><p>C: Consistency，一致性</p>
-</li>
-<li><p>I: Isolation，隔离性</p>
-</li>
-<li><p>D: Durability，持久性</p>
-</li>
+<li>A: Atomicity，原子性</li>
+<li>C: Consistency，一致性</li>
+<li>I: Isolation，隔离性</li>
+<li>D: Durability，持久性</li>
 </ul>
 <p>具有ACID的特性的数据库支持强一致性，强一致性代表数据库本身不会出现不一致，每个事务是原子的，或者成功或者失败，事物间是隔离的，互相完全不影响，而且最终状态是持久落盘的，因此，数据库会从一个明确的状态到另外一个明确的状态，中间的临时状态是不会出现的，如果出现也会及时的自动的修复，因此是强一致的。</p>
 <p>对于案例1，如果能保证把订单和库存放入同一个数据库分片，这样通过关系型数据库自然就解决了不一致的问题。但是由于业务规则的限制，无法将相关的数据分到同一个数据库分片，这个时候我们就需要实现最终一致性</p>
@@ -183,12 +179,9 @@
 <p>BASE模型与ACID模型不同，满足CAP理论，通过牺牲强一致性，获得可用性，一般应用在服务化系统的应用层或者大数据处理系统，通过达到最终一致性来尽量满足业务的绝大部分需求。</p>
 <p>BASE模型包含个三个元素：</p>
 <ul>
-<li><p>BA：Basically Available，基本可用</p>
-</li>
-<li><p>S：Soft State，软状态，状态可以有一段时间不同步</p>
-</li>
-<li><p>E：Eventually Consistent，最终一致，最终数据是一致的就可以了，而不是时时保持强一致</p>
-</li>
+<li>BA：Basically Available，基本可用</li>
+<li>S：Soft State，软状态，状态可以有一段时间不同步</li>
+<li>E：Eventually Consistent，最终一致，最终数据是一致的就可以了，而不是时时保持强一致</li>
 </ul>
 <p>BASE模型的软状态是实现BASE理论的方法，基本可用和最终一致是目标。按照BASE模型实现的系统，由于不保证强一致性，系统在处理请求的过程中，可以存在短暂的不一致，在短暂的不一致窗口请求处理处在临时状态中，系统在做每步操作的时候，通过记录每一个临时状态，在系统出现故障的时候，可以从这些中间状态继续未完成的请求处理或者退回到原始状态，最后达到一致的状态。</p>
 <p>以案例2-转账为例，我们把用户A给用户B转账分成四个阶段，第一个阶段用户A准备转账，第二个阶段从用户A账户扣减余额，第三个阶段对用户B增加余额，第四个阶段完成转账。系统需要记录操作过程中每一步骤的状态，一旦系统出现故障，系统能够自动发现没有完成的任务，然后，根据任务所处的状态，继续执行任务，最终完成任务，达到一致的最终状态。</p>
@@ -212,10 +205,8 @@
 <h1 id="分布式一致性问题解决方案——paxos"><a href="#分布式一致性问题解决方案——paxos" class="headerlink" title="分布式一致性问题解决方案——paxos"></a>分布式一致性问题解决方案——paxos</h1><p><a href="https://www.cnblogs.com/linbingdong/p/6253479.html" target="_blank" rel="noopener">https://www.cnblogs.com/linbingdong/p/6253479.html</a></p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>还有一些关于分布式一致性的技术无法在一篇文章中与大家分享，包括：raft算法、zab算法、nwr算法、一致性哈希等。</p>
 <h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ul>
-<li><p>《从paxos到Zookeeper分布式一致性原理和实践》</p>
-</li>
-<li><p>《分布式服务架构：原理、设计和实战》</p>
-</li>
+<li>《从paxos到Zookeeper分布式一致性原理和实践》</li>
+<li>《分布式服务架构：原理、设计和实战》</li>
 </ul>
 <p>基础概念介绍：<a href="https://www.cnblogs.com/szlbm/p/5588543.html" target="_blank" rel="noopener">https://www.cnblogs.com/szlbm/p/5588543.html</a></p>
 
