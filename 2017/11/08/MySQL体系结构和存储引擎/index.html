@@ -189,6 +189,10 @@
         <div id="comment-container">
         </div>
         <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
     </div>
 </div>
     </div>
@@ -281,19 +285,26 @@
 <script src="/js/index.js"></script>
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-<script src="/js/gitment.js"></script>
-<script>
-    var gitment = new Gitment({
-        id: 'MySQL体系结构和存储引擎',
-        owner: 'shallotsh',
-        repo: 'shallotsh.github.io',
-        oauth: {
-            client_id: 'b3260fcb1f223a89bf9c',
-            client_secret: '989da3c54db88efce806e490362c800efe7d886f',
-        },
-    })
-    gitment.render('comment-container')
-</script>
 
+
+
+    <script type="text/javascript">
+       (function() {
+           var j, d = document.getElementById('lv-container');
+
+           if (typeof LivereTower === 'function') { return; }
+
+           d.setAttribute('data-id','city');
+           d.setAttribute('data-uid' , 'MTAyMC80MDQyMy8xNjk1MA==');
+
+           j = document.createElement('script');
+           j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+           j.async = true;
+
+           d.appendChild(j);
+       })();
+    </script>
+    <noscript>为正常使用来必力评论功能请激活JavaScript</noscript>
+    </div>
 
 </html>
