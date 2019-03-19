@@ -209,12 +209,12 @@
 <h1 id="分布式服务间的数据一致性"><a href="#分布式服务间的数据一致性" class="headerlink" title="分布式服务间的数据一致性"></a>分布式服务间的数据一致性</h1><p>随着业务的发展，可能是为了满足性能、维护性等原因，需要将原来通过本地接口交互的模块拆分成可独立部署的应用，并通过RPC或者消息来交互，这样就出现了分布式服务。</p>
 <p>如图，在集中式架构时代，要保证订单表和商品库存表之间的一致性，只需要一个本地事务（ACID）即可保证强一致性；拆分成分布式服务后，订单表/库由订单服务操作，库存表/库由库存服务操作，但是业务逻辑还是需要保证两者数据的一致性，这就引出了分布式事务的概念。</p>
 <p>由于分布式事务之间的RPC或者消息调用可能会因为网络异常等问题而失败，这样就可能产生数据不一致的情况。</p>
-<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/e-shop.png" alt="e-shop"></div></p>
+<p><div align="center"><img src="http://img.huangyawu.com/e-shop.png" alt="e-shop"></div></p>
 <center>图一 某电商系统结构图</center>
 
 <p>（图一是个简陋的电商系统结构，仅用于说明分布式服务之间的数据一致性问题）</p>
 <h1 id="常见调用模式的数据一致性问题解决方案"><a href="#常见调用模式的数据一致性问题解决方案" class="headerlink" title="常见调用模式的数据一致性问题解决方案"></a>常见调用模式的数据一致性问题解决方案</h1><h2 id="接口同步调用模式"><a href="#接口同步调用模式" class="headerlink" title="接口同步调用模式"></a>接口同步调用模式</h2><p>同步调用模式适用于业务系统中对接口响应时间不敏感的服务，或者大规模、高并发的短小操作且依赖返回值的的场景，例如交易与库存的交互等。</p>
-<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/distribution-2.svg" alt="distribution-2"></div></p>
+<p><div align="center"><img src="http://img.huangyawu.com/distribution-2.svg" alt="distribution-2"></div></p>
 <center>图二 同步调用模式</center>
 
 <p><strong>分析</strong>：A服务同步调用B服务的接口并等待返回，后续的流程依赖B服务的返回结果，A可能会得到结果有三种：</p>
@@ -230,7 +230,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">下单减库存方法() &#123;</span><br><span class="line"></span><br><span class="line">    // 1.准备操作</span><br><span class="line"></span><br><span class="line">    // 2.重试调用B服务</span><br><span class="line"></span><br><span class="line">    result = RetryUtil &#123;</span><br><span class="line"></span><br><span class="line">        while(retryCount &lt; MAX_RETRY_COUNT) &#123;</span><br><span class="line"></span><br><span class="line">            try &#123;</span><br><span class="line"></span><br><span class="line">            	// 调用B服务</span><br><span class="line"></span><br><span class="line">                // case1：网络超时或异常（catch分支）</span><br><span class="line"></span><br><span class="line">                // case2：扣减库存成功，result=成功（return）</span><br><span class="line"></span><br><span class="line">                // case3：扣减库存失败，result=失败（return）</span><br><span class="line"></span><br><span class="line">                return rpc.扣减库存();</span><br><span class="line"></span><br><span class="line">            &#125; catch (Exception e) &#123;</span><br><span class="line"></span><br><span class="line">                if (retryCount == MAX_RETRY_COUNT) &#123;</span><br><span class="line"></span><br><span class="line">                    // 报警，人工处理或者系统兜底方案处理逻辑</span><br><span class="line"></span><br><span class="line">                    // 抛出异常，中断后续流程；或者将异常封装</span><br><span class="line"></span><br><span class="line">                    throw 自定义异常; </span><br><span class="line"></span><br><span class="line">                &#125; else &#123;</span><br><span class="line"></span><br><span class="line">                	retryCount++;</span><br><span class="line"></span><br><span class="line">                	</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    // 3.后续操作</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>2.TCC方案</p>
 <p>该方案适用于多个重服务场景，TCC二阶段提交协议的基础上提出的一种分布式事务一致性协议，对应于阿里的产品就DTX（DTS的升级版）。</p>
-<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/distribution-3.png" alt="distribution-3"></div></p>
+<p><div align="center"><img src="http://img.huangyawu.com/distribution-3.png" alt="distribution-3"></div></p>
 <center>图三 TCC原理</center>
 
 <p>Try-Confirm-Cancel（TCC）是初步操作（Try）、确认操作（Confirm）和取消操作（Cancel）三种操作的缩写，这三种操作的业务含义如下：</p>
@@ -242,14 +242,14 @@
 <p>比较流行的开源实现有 <a href="https://github.com/liuyangming/ByteTCC" target="_blank" rel="noopener">ByteTcc</a>  、 <a href="https://github.com/changmingxie/tcc-transaction" target="_blank" rel="noopener">tcc-transaction</a> </p>
 <p>3.GTS方案</p>
 <p>GTS（Global Transaction Service ，简称GTS）方案是阿里巴巴提供的一种分布式服务（特别是微服务）架构中的分布式事务一站式解决方案，其基本思路是将分布式事务与具体业务分离，在平台层面开发通用的事务中间件GTS，由事务中间件协调各服务的调用一致性，负责分布式事务的生命周期管理、服务调用失败的自动回滚。阿里官方宣称，这几乎适用于各种场景，个人将GTS方案视为一种XA协议的商业加强版版实现，GTS的MT模式等价于TCC模式。</p>
-<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/distribution-4.png" alt="distribution-4"></div></p>
+<p><div align="center"><img src="http://img.huangyawu.com/distribution-4.png" alt="distribution-4"></div></p>
 <center>图四 GTS架构</center>
 
 <p>GTS中间件主要包括客户端（GTS Client）、资源管理器（GTS RM）和事务协调器（GTS Server）三部分。GTS Client主要完成事务的发起与结束。GTS RM完成分支事务的开启、提交、回滚等操作。GTS Server主要负责分布式事务的整体推进，事务生命周期的管理。 </p>
 <p>延伸阅读<br><a href="https://www.jianshu.com/p/81c5ca88cfbe" target="_blank" rel="noopener">GTS–阿里巴巴分布式事务全新解决方案</a></p>
 <p><a href="https://blog.csdn.net/qq_36510261/article/details/78981755" target="_blank" rel="noopener">GTS原理分析</a></p>
 <h2 id="接口异步调用模式"><a href="#接口异步调用模式" class="headerlink" title="接口异步调用模式"></a>接口异步调用模式</h2><p>异步调用模式适用于非核心链路上负载较高的处理环节，这个环节经常耗时较长，并且对时效性要求不高。例如，用户提现时，账户系统和提现系统的交互（CASE-1）；提现系统和三方系统（银行系统或者三方托管系统）的交互（CASE-2）</p>
-<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/distribution-5.svg" alt="distribution-5"></div></p>
+<p><div align="center"><img src="http://img.huangyawu.com/distribution-5.svg" alt="distribution-5"></div></p>
 <center>图五 异步调用模式</center>
 
 <p><strong>分析</strong>：A服务调用B服务，B服务先受理请求并落库，状态是待处理，B服务处理请求很耗时，或者要依赖其他的服务，B服务处理完后通知A服务或者A服务定时去查询B服务的处理结果。这种交互模式下，对于CASE-1，第1步和第2步同接口同步调用模式，第3步同消息异步处理模式；对于CASE-2，相当于两次接口同步调用模式。</p>
@@ -257,20 +257,20 @@
 <p>伪代码：</p>
 <p>点击展开内容<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">受理请求方法() &#123;</span><br><span class="line"></span><br><span class="line">    // 1.请求落库，状态为待处理</span><br><span class="line"></span><br><span class="line">    // 2.返回受理结果</span><br><span class="line"></span><br><span class="line">    if (落库成功) &#123;</span><br><span class="line"></span><br><span class="line">        // 返回受理成功</span><br><span class="line"></span><br><span class="line">    &#125; else &#123;</span><br><span class="line"></span><br><span class="line">        // 返回受理失败</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">定时任务处理请求方法() &#123;</span><br><span class="line"></span><br><span class="line">    // 1.扫描待处理请求</span><br><span class="line"></span><br><span class="line">    try &#123;</span><br><span class="line"></span><br><span class="line">        // 2.处理请求</span><br><span class="line"></span><br><span class="line">        if (处理成功) &#123;</span><br><span class="line"></span><br><span class="line">            // 设置请求处理状态为处理成功</span><br><span class="line"></span><br><span class="line">        &#125; eles &#123;</span><br><span class="line"></span><br><span class="line">            //  设置请求处理状态为处理失败</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line"></span><br><span class="line">        // 不做任何操作，请求状态依旧为待处理</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 3.消息通知A服务处理结果或者等待A服务查询处理结果</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <h2 id="消息异步处理"><a href="#消息异步处理" class="headerlink" title="消息异步处理"></a>消息异步处理</h2><p>消息异步处理模式与接口异步调用模式类似，多应用于非核心链路上负载较高的处理环节中，井且服务的上游不关心下游的处理结果，下游也不需要向上游返回处理结果。例如，在电商系统中，用户下订单支付且交易成功后，发送消息给物流系统或者账务系统进行后续的处理。</p>
-<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/distribution-6.svg" alt="distribution-6"></div></p>
+<p><div align="center"><img src="http://img.huangyawu.com/distribution-6.svg" alt="distribution-6"></div></p>
 <center>图六 消息异步处理过程</center>
 
 <p><strong>分析</strong>：A服务将B服务需要的信息通过消息中间件传递给B服务，A服务无需知道B服务的处理结果；消息生产者要确保消息发送成功，消息消费者要确保消息消费成功。</p>
 <p><strong>一致性方案</strong>：生产者尽最大努力通知，消费者最大努力处理，具体方案根据消息队列是否支持事务而略有不同，消息方处理需实现幂等。</p>
 <p>1.非事务性消息（如mafka/kafka）</p>
 <p>生产者先执行本地事务并将消息落库，状态标记为待发送，然后发送消息，如果发送成功，则将消息改为发送成功，另设一个定时任务定时从库中拉取一定时间内的待发送状态的消息进行发送操作；消费者通过ack机制将消费结果反馈给消息队列服务器。</p>
-<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/distribution-7.svg" alt="distribution-7"></div></p>
+<p><div align="center"><img src="http://img.huangyawu.com/distribution-7.svg" alt="distribution-7"></div></p>
 <center>图七 非事务消息一致性方案</center>
 
 <p>也可以通过GTS方案，将非事务性消息和本地事务操作放到一个全局的事务中，这样也能实现本地事务和消息发送在同一个事务中，从而达到分布式环境数据一致。</p>
 <p>2.事务消息（rocketmq/rabbitmq）</p>
 <p>带事务机制的消息发送的时候，保证了和本地事务的一致，消费者实现还是通过ack机制来反馈消费完成。</p>
-<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/distribution-8.png" alt="distribution-8"></div></p>
+<p><div align="center"><img src="http://img.huangyawu.com/distribution-8.png" alt="distribution-8"></div></p>
 <center>图八 事务消息一致性方案</center>
 
 <p>注：消息异步处理模式中一致性方案的实现依赖于消费组的处理逻辑的幂等性。</p>
@@ -373,7 +373,7 @@
     <div class="site-footer-info">
       <i class="fa fa-copyright"></i> 
       2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
-      Hosted by <a href="https://pages.coding.me" style="font-weight: bold;">Coding Pages</a>. <script type="text/javascript" src="https://s23.cnzz.com/z_stat.php?id=1276688419&web_id=1276688419"></script>
+      Hosted by <a href="https://pages.coding.me" style="font-weight: bold;">Coding Pages</a>.
       All rights reserved.
     </div>
   </footer>
@@ -495,5 +495,6 @@
 
 
     
+    <script type="text/javascript" src="https://s23.cnzz.com/z_stat.php?id=1276688419&web_id=1276688419"></script>
   </body>
 </html>
