@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Gary Huang" />
+  
+  
+  <title>领域、子域和限界上下文 | 深思</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="领域驱动设计,读书笔记,领域,子域,限界上下文," />
+  
+
+  
+  <meta name="description" content="Sense">
+
+  
+
+  <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz","appkey":"WaR7nrzhliHj9aVwdQzkdlGd","comment":false,"count":false},
+    welcome: {"enable":true,"interval":30},
+    start_time: "2019-03-07",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Gary Huang",
+    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: ""
+  };
+</script>
+
+  <script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+  
+</head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">SENSE</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 安静写些东西</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/shallotsh/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2018-08-21
+    </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    领域、子域和限界上下文
+  </h1>
+  
+  <article class="passage-article">
+    <p>##概念导图</p>
+<p><img src="http://oz4nn1wia.bkt.clouddn.com/ddd.jpg" alt="DDD"></p>
+<p>（<a href="https://xianjing.github.io/2014/04/18/implementing-ddd-reading-strategic-design/" target="_blank" rel="noopener">]implementing-ddd-reading-strategic-design/</a>）</p>
+<h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><h2 id="领域"><a href="#领域" class="headerlink" title="领域"></a>领域</h2><blockquote>
+<p>广义上讲，领域即是一个组织所做的事情以及其中所包含的一切，也是组织的业务范围以及在其中所进行的活动。软件所讨论的领域即是这个组织的领域，应该是清晰明确的。不同的层面或粒度，领域一词承载的内容不同。</p>
+</blockquote>
+<p>领域是个抽象概念，侧重点是“范围+活动”；领域不是领域模型。</p>
+<p>就CRM而言，资源管理就是一个领域。</p>
+<h2 id="子域"><a href="#子域" class="headerlink" title="子域"></a>子域</h2><blockquote>
+<p>子域是领域的一部分，领域可以划分为若干个小的逻辑独立子域，从而更好的应对问题的复杂性。<br>  子域包括核心子域、支撑子域和通用子域三种类型。</p>
+</blockquote>
+<p>领域内的业务逻辑往往比较复杂，这时候一般会将领域拆分为若干个子域，即分治思想的体现；子域可大可小，但一般是独立的、内聚的。</p>
+<p>比如在CRM资源管理中，秒杀就可以被划分为一个子域。</p>
+<h2 id="问题空间"><a href="#问题空间" class="headerlink" title="问题空间"></a>问题空间</h2><p>问题空间是领域的一部分，问题空间中考虑的是当前业务所面临的挑战，如库存系统的成本较高问题。对于问题空间的开发将产生新的核心子域，问题空间的子域随着项目的不同而不同，关注着各自不同的业务问题。</p>
+<p>在进行问题空间分析时，我们需要对其进行评估，需要与业务人员（客户）一起确认我们对问题空间的核心子域以及要达成的业务目标的理解，其中包含哪些核心概念，它的支撑子域和通用子域是什么，从而确认相关利益方在目标上达成一致，也即是我们通常在项目启动时所讲的构建业务愿景。</p>
+<h2 id="解决方案空间"><a href="#解决方案空间" class="headerlink" title="解决方案空间"></a>解决方案空间</h2><p>解决方案空间讨论的是如何用软件来解决这些业务挑战，它包括一个或多个限界上下文，是一组特定的软件模型。限界上下文在这里有更多的阐释，限界上下文即是一个特定的解决方案，划分限界上下文往往也意味着对于解决问题空间的分析映射和实现。</p>
+<p>解决方案空间通常会收到现有系统和技术的影响，需要考虑是否重用，资源时间的约束，如何集成，风险控制等。在解决方案空间中，限界上下文是重要的建模工具。</p>
+<p>书上对一个ERP系统的领域设计，进行了问题空间分析，最终得出了核心域、支撑子域和通用子域的划分，并给出了明确的限界上下文定义。</p>
+<p>我们在实施DDD战略设计的时候，应该是从问题空间出发，确认解决方案空间，划分限界上下文，从而识别其中的核心领域模型；并通过问题空间的更新和解决方案的更新/正实时的调整模型及其关系。</p>
+<h1 id="理解限界上下文"><a href="#理解限界上下文" class="headerlink" title="理解限界上下文"></a>理解限界上下文</h1><p>限界上下文是一个显式边界，领域模型便存在边界之内。在边界内，通用语言中的所有术语和词组都有特定的含义，而模型需要准确地反映通用语言。</p>
+<p>限界上下文主要是一个语义上的边界，与技术实现无关，更不是一个组件。</p>
+<h2 id="限界上下文不仅仅只包含模型"><a href="#限界上下文不仅仅只包含模型" class="headerlink" title="限界上下文不仅仅只包含模型"></a>限界上下文不仅仅只包含模型</h2><p>领域模型是限界上下文中的主要公民，当前的上下文决定了它所代表的唯一的、具体的业务术语或概念。每个领域模型具有自己的属性和操作，领域模型之间互相交互完成限界上下文的业务。内聚的领域模型是一个好的限界上下文的重要组成。</p>
+<p>限界上下文并不仅是领域模型，它同时也包含了那些为领域模型提供交互手段和辅助功能的内容，比如数据库Schema设计等，但如何确认领域模型/组件/服务在上下文的边界内是一个需要解决的问题。</p>
+<h2 id="限界上下文的大小"><a href="#限界上下文的大小" class="headerlink" title="限界上下文的大小"></a>限界上下文的大小</h2><p>限界上下的大小需要经过分析讨论，在团队上下达成一致。</p>
+<ul>
+<li>足够大，以能够表达它所对应的整套通用语言。限界上下文需要清楚包含的核心领域概念，清楚那些不属于通用语言的外部概念。上下文映射可以帮助我们做出相对正确的判断。</li>
+<li>足够小，从而使得它所封装的通用语言和领域对象具有清晰的定义，但也不要基于约束它的范围。</li>
+</ul>
+<p>限界上下文的大小与技术实现和项目管理无关，切勿因此走入限界上下文拆分，将通用语言拆分得四分五裂。</p>
+<blockquote>
+<p>如果你没有采用语言驱动，那么你就不算在和领域专家一起工作来创建限界上下文。认真考虑一下限界上下文的大小，不要急于将其小型化。</p>
+</blockquote>
+<p>其实这里的“底线”还是在强调限界上下文主要是语义层面的，与具体的技术实现无关，即采用语言驱动是DDD设计的必要条件。</p>
+<h2 id="限界上下文的边界"><a href="#限界上下文的边界" class="headerlink" title="限界上下文的边界"></a>限界上下文的边界</h2><p>对应于通用语言，限界上下文是语言的边界，对于领域模型，限界上下文是模型的边界。</p>
+<p>限界上下文可以用来隔离关注点，分离模型。</p>
+<h3 id="逻辑边界"><a href="#逻辑边界" class="headerlink" title="逻辑边界"></a>逻辑边界</h3><p>命名空间级别：逻辑边界通过命名空间进行界定，但是所有的限界上下文其实都处于同一个模块中，编译后都属于同一个Jar包。</p>
+<p>模块级别：在命名空间上是逻辑分离的，而不同限界上下文则属于同一个项目的不同模块，编译后会生成各自的Jar包，部署时通过一个单独的jar包或者war包连接需要的模块。</p>
+<p>采用逻辑边界划分限界上下文的系统架构是单块（Monolithic）架构，所有的限界上下文都部署在同一个进程中，因此不能针对某一个限界上下文进行水平伸缩。</p>
+<h3 id="物理边界"><a href="#物理边界" class="headerlink" title="物理边界"></a>物理边界</h3><p>《领域驱动设计》一书中写到：</p>
+<blockquote>
+<p>根据团队的组织、软件系统的各个部分的用法以及物理表现（代码和数据库模式等）来设置模型的边界。</p>
+</blockquote>
+<p>限界上下文并不仅仅作用于领域层和应用层，也是架构设计的一部分。当我们将限界上下文的边界定义为物理边界时，每个限界上下文就变成了一个个细粒度的微服务。</p>
+<p>书上的示例上下文（协作上下文、权限和访问上下文和敏捷项目管理上下文）的边界便是一种物理边界，通过物理边界来保证边界内的服务、基础设施等其他外部资源的完整性，最终实现自治的服务。</p>
+<p>逻辑边界和物理边界各有优缺点，且一种边界的缺点恰好是另一种边界的优点。</p>
+<p>限于计算资源的利用，在docker广泛应用以前，一项业务/项目基于DDD启动，通常会采用逻辑边界（目前也极可能这样做）；在docker用于服务部署之后，基于DDD的微服务应用物理边界就几乎不再受限于计算资源了，从一开始就可以朝着微服务的目标前进了。</p>
+<h1 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h1><p>资源轮转限界上下文</p>
+<p>可以参考书上给的示例上下文，写的非常详细。</p>
+<p><img src="http://oz4nn1wia.bkt.clouddn.com/domain-eg.png" alt="示例"></p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>《领域驱动设计》</p>
+
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#基本概念"><span class="toc-text">基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#领域"><span class="toc-text">领域</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#子域"><span class="toc-text">子域</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#问题空间"><span class="toc-text">问题空间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解决方案空间"><span class="toc-text">解决方案空间</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#理解限界上下文"><span class="toc-text">理解限界上下文</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#限界上下文不仅仅只包含模型"><span class="toc-text">限界上下文不仅仅只包含模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#限界上下文的大小"><span class="toc-text">限界上下文的大小</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#限界上下文的边界"><span class="toc-text">限界上下文的边界</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#逻辑边界"><span class="toc-text">逻辑边界</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#物理边界"><span class="toc-text">物理边界</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#示例"><span class="toc-text">示例</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考文献"><span class="toc-text">参考文献</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: Gary Huang</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://blog.sense.ink/passages/领域、子域和限界上下文/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/领域驱动设计/"><i class="fa fa-tags"></i>领域驱动设计</a>
+     
+      <a href="/tags/读书笔记/"><i class="fa fa-tags"></i>读书笔记</a>
+     
+      <a href="/tags/领域/"><i class="fa fa-tags"></i>领域</a>
+     
+      <a href="/tags/子域/"><i class="fa fa-tags"></i>子域</a>
+     
+      <a href="/tags/限界上下文/"><i class="fa fa-tags"></i>限界上下文</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">博客推荐</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://waylau.gitbooks.io/essential-netty-in-action/" target="_blank">Netty</a>
+          </span>
+        
+          <span class="site-footer-item">
+            <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+          </span>
+        
+      </div>
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">系列教程</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+          </span>
+        
+          <span class="site-footer-item">
+            <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+          </span>
+        
+      </div>
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">抓到我</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://segmentfault.com/" target="_blank">思否</a>
+          </span>
+        
+      </div>
+    
+    <!--<div class="site-footer-info">-->
+      <!--<i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>-->
+    <!--</div>-->
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: shallotsh@gmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Hosted by <a href="https://pages.coding.me" style="font-weight: bold;">Coding Pages</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+        
+          <div>
+            <img src="/img/eth.png" alt="ETH">
+            
+              <p>ETH</p>
+            
+          </div>
+        
+      </div>
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/写给工程师的十条精进原则/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/DDD入门/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    <a href="javascript:void(0);" id="site-reward">
+      <i class="fa fa-thumbs-up"></i>
+    </a>
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-twitter"></i>
+    </a>
+  
+  
+    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-facebook"></i>
+    </a>
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+  <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+  <script async>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', '');
+  </script>
+
+
+
+  <script async>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+  </script>
+
+
+
+  <script async>
+    (function(){
+    var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?":"https://jspassport.ssl.qhimg.com/11.0.1.js?";
+    document.write('<script src="' + src + '" id="sozz"><\/script>');
+    })();
+  </script>
+
+
+    
+  </body>
+</html>

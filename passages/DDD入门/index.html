@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Gary Huang" />
+  
+  
+  <title>DDD入门 | 深思</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="领域驱动设计,DDD入门,读书笔记," />
+  
+
+  
+  <meta name="description" content="Sense">
+
+  
+
+  <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz","appkey":"WaR7nrzhliHj9aVwdQzkdlGd","comment":false,"count":false},
+    welcome: {"enable":true,"interval":30},
+    start_time: "2019-03-07",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Gary Huang",
+    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: ""
+  };
+</script>
+
+  <script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+  
+</head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">SENSE</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 安静写些东西</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/shallotsh/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2018-08-20
+    </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    DDD入门
+  </h1>
+  
+  <article class="passage-article">
+    <h2 id="什么是DDD"><a href="#什么是DDD" class="headerlink" title="什么是DDD"></a>什么是DDD</h2><p>DDD，即Domain-Driven Design，领域驱动设计，起源于2003年著名建模专家Eric Evans发表了他最具影响力的著名书籍“Domain-Driven Design –Tackling Complexity in the Heart of Software”。</p>
+<p>到底什么是DDD？到现在我也没法给出一个准确的定义，只能先简单介绍下自己的认知。DDD其实并非“标新立异”的新事物，而是对传统的以数据为中心的建模方式的思考。</p>
+<p>领域驱动设计不是一种具体的架构设计，而是一种程序设计建模思维和一种基于通用语言的有效沟通方式。</p>
+<h2 id="我能DDD吗"><a href="#我能DDD吗" class="headerlink" title="我能DDD吗"></a>我能DDD吗</h2><p>任何参与到目标系统/业务的人员都可以DDD，不论你的职位。</p>
+<blockquote>
+<p>DDD首先不是关于技术的，而是关于讨论、聆听、理解、发现和业务价值的，而这些都是为了将知识集中起来。</p>
+</blockquote>
+<p>团队（或者项目）中参与DDD的所有成员，都是基于一套内部的通用语言来表达业务逻辑和系统设计。如果你不是技术人员，但是了解业务，那么可以为通用语言做出贡献，可以辅助验证领域模型；如果你是一位技术精湛的成员，但这并不代表你已经具备了相当的业务能力，但是你可以跟领域专家一起设计更好的通用语言和领域模型。</p>
+<p>那么团队中，谁才是领域专家呢？</p>
+<blockquote>
+<p>领域专家并不是一个职位，他可以是精通业务的任何人。他们可能了解更多的业务领域的背景知识，他们可能是软件产品的设计者，甚至可能是销售员。</p>
+</blockquote>
+<p>如果你是一位技术人员，最好能够将那些不怎么使用技术语言的人（领域专家）加进自己的团队，大家可以相互学习，发现自己的业务盲区，最终达到整个团队所有成员都在学习和成长。</p>
+<p>什么又是领域模型呢？</p>
+<blockquote>
+<p>领域模型是关于某个特定业务领域的软件模型。通常，领域模型通过对象模型来实现，这些对象同时包括了数据和行为，并且表达了准确的业务含义。</p>
+</blockquote>
+<p>不同角色的人都能从DDD中获益。</p>
+<ul>
+<li>新手开发者，可以避免在迷失在重复性的工作中；</li>
+<li>中级开发者可以提升对事物的洞察力，即对业务的理解和思考能力；</li>
+<li>高级开发者可以通过引入DDD来提高整个团队的“战斗力”；</li>
+<li>领域专家可以通过通用语言与技术人员无障碍地沟通，甚至在一起工作</li>
+<li>对于项目经理关注的排期和交付，也是十分有帮助</li>
+</ul>
+<h2 id="为什么我们需要DDD"><a href="#为什么我们需要DDD" class="headerlink" title="为什么我们需要DDD"></a>为什么我们需要DDD</h2><figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DRY—— Don<span class="symbol">'t</span> repeat yourself.</span><br></pre></td></tr></table></figure>
+<p>应用DDD带来的好处：</p>
+<ul>
+<li>使得领域专家和开发者在一起工作，这样开发出来的软件能够准确地表达业务规则——此时的软件就像如果领域专家是编码人员时所开发出来的一样</li>
+<li>可以帮助业务人员自我提高</li>
+<li>可以确保软件知识不只是掌握在少数人手中（对于成员流动性较大的互联网企业尤为重要）。</li>
+<li>代码即是设计，设计即是代码。</li>
+<li>领域专家、开发者和软件之间不存在需要“翻译”的地方</li>
+</ul>
+<p>听起来DDD近乎是完美的，但实际上还需要将设计落地到具体的业务上。</p>
+<h3 id="难以捉摸的业务价值"><a href="#难以捉摸的业务价值" class="headerlink" title="难以捉摸的业务价值"></a>难以捉摸的业务价值</h3><blockquote>
+<p>具有真正业务价值的软件能够很好地符合业务战略，并且可以将竞争优势融合到解决方案中。</p>
+</blockquote>
+<p>应用DDD，团队中的成员通过内部的通用语言来沟通，减少了团队中不同角色之间的沟通成本，同时可以大大减少沟通理解上的偏差，将更多的精力投入到领域模型的设计和实现。</p>
+<p>一方面降低了沟通和业务需求传递的成本，另一方面团队内部良好的沟通使得软件的工作方式符合真实的业务策略设计，从而提升软件的业务价值。</p>
+<h3 id="DDD如何帮助我们"><a href="#DDD如何帮助我们" class="headerlink" title="DDD如何帮助我们"></a>DDD如何帮助我们</h3><ul>
+<li>将领域专家和开发人员聚集在一起，这样所开发出来的软件能够反映出领域专家的思维模型，交付最具业务价值的软件</li>
+<li>DDD关注业务战略</li>
+<li>战术设计建模工具，满足了软件真正的技术需求</li>
+</ul>
+<h3 id="处理领域的复杂性"><a href="#处理领域的复杂性" class="headerlink" title="处理领域的复杂性"></a>处理领域的复杂性</h3><p>基于DDD强大的威力和实施的难度，DDD首先应该应用在重要的业务场景下。对于那些重要的、复杂的，且能带来可观回报的软件，是最值得投入的，这样的软件模型命名为“核心域”，那些相对次要的称为“支撑子域”</p>
+<blockquote>
+<p>在使用DDD时，我们应该采用简单的方式对复杂领域进行建模，而不是使问题变得更加复杂。</p>
+</blockquote>
+<p>不同业务领域对于复杂性性的定义是不一样的，通常会通过判断业务（或者说系统）是不是重要的，然后决定开发的系统是否值得做出DDD投入。</p>
+<p>应用DDD设计的系统，其领域模型能表达明确的业务含义，而不是只是一堆代码围绕一堆数据运算，不懂业务背景的人难以看出其背后逻辑的含义。</p>
+<h2 id="如何DDD"><a href="#如何DDD" class="headerlink" title="如何DDD"></a>如何DDD</h2><p>通用语言和限界上下文同时构成了DDD的两大支柱。</p>
+<blockquote>
+<p>通用语言是团队共享的语言。</p>
+</blockquote>
+<p>通用语言是整个团队创建的一门语言。在最开始的时候，通用语言可能只包含领域专家使用的术语，但随着时间推移会不断壮大。</p>
+<p>如何掌握通用语言？</p>
+<ul>
+<li>同时绘制物理模型图和概念模型图，并标以名字和行为</li>
+<li>创建一些包含简单定义的术语表</li>
+<li>团队内部沟通讨论</li>
+</ul>
+<blockquote>
+<p>由于团队交流和代码才是对通用语言的持续表达，你应该尝试抛弃哪些模型图、术语表和文档。</p>
+</blockquote>
+<p>因为通用语言的改进直接反应在系统的源码中，而之前设计的文档和模型图通常不会同步被更新。</p>
+<p>然后通用语言也有其限制：</p>
+<ul>
+<li>通用语言尽在团队范围内使用，并且表达了一个单一的领域模型</li>
+<li>限界上下文和通用语言一一对应</li>
+<li>只有当团队工作在一个独立的限界上下文中是，通用语言才是“通用”的</li>
+</ul>
+<h2 id="使用DDD的业务价值"><a href="#使用DDD的业务价值" class="headerlink" title="使用DDD的业务价值"></a>使用DDD的业务价值</h2><blockquote>
+<ol>
+<li>你获得了一个非常有用的领域模型</li>
+<li>你的业务得到更准确的定义和理解</li>
+<li>领域专家可以为软件设计做出贡献</li>
+<li>更好的用户体验</li>
+<li>清晰的模型边界</li>
+<li>更好的企业架构</li>
+<li>敏捷、迭代和持续建模</li>
+<li>使用战略和战术新工具</li>
+</ol>
+</blockquote>
+<h2 id="实现DDD面临的挑战"><a href="#实现DDD面临的挑战" class="headerlink" title="实现DDD面临的挑战"></a>实现DDD面临的挑战</h2><p>三点最常见的挑战：</p>
+<ul>
+<li>为创建通用语言腾出时间和经历</li>
+<li>持续地将领域专家引入项目</li>
+<li>改变开发对领域的思考方式</li>
+</ul>
+<p>我们需要花费大量的时间和精力来思考业务领域，研究概念和术语，并和领域专家交流，以发现、捕捉和改进通用语言。就个人而言，公司业务的变化，通常会引入新的通用语言，如何定义新的通用语言十分重要，因为后期改进的代价要大得多。</p>
+<p>引入领域专家也不是一件容易的事。特别是在一些小公司，或者创业公司，通常你的老大或者老板就是为数不多的领域专家，然后他们通常有很多会议或者外出，这样导致你可能很难找到一位经常可以一起讨论的领域专家。</p>
+<p>对于已经习惯了数据驱动开发的技术人员来说，要适应DDDD面向业务的思考问题方式就不是一件容易的事儿。更要命的事，几乎所有技术的入门教程都不会结合业务。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>《实现领域驱动设计》</li>
+</ul>
+
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是DDD"><span class="toc-text">什么是DDD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#我能DDD吗"><span class="toc-text">我能DDD吗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么我们需要DDD"><span class="toc-text">为什么我们需要DDD</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#难以捉摸的业务价值"><span class="toc-text">难以捉摸的业务价值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DDD如何帮助我们"><span class="toc-text">DDD如何帮助我们</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#处理领域的复杂性"><span class="toc-text">处理领域的复杂性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何DDD"><span class="toc-text">如何DDD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用DDD的业务价值"><span class="toc-text">使用DDD的业务价值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现DDD面临的挑战"><span class="toc-text">实现DDD面临的挑战</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: Gary Huang</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://blog.sense.ink/passages/DDD入门/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/领域驱动设计/"><i class="fa fa-tags"></i>领域驱动设计</a>
+     
+      <a href="/tags/DDD入门/"><i class="fa fa-tags"></i>DDD入门</a>
+     
+      <a href="/tags/读书笔记/"><i class="fa fa-tags"></i>读书笔记</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">博客推荐</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://waylau.gitbooks.io/essential-netty-in-action/" target="_blank">Netty</a>
+          </span>
+        
+          <span class="site-footer-item">
+            <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+          </span>
+        
+      </div>
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">系列教程</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+          </span>
+        
+          <span class="site-footer-item">
+            <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+          </span>
+        
+      </div>
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">抓到我</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://segmentfault.com/" target="_blank">思否</a>
+          </span>
+        
+      </div>
+    
+    <!--<div class="site-footer-info">-->
+      <!--<i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>-->
+    <!--</div>-->
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: shallotsh@gmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Hosted by <a href="https://pages.coding.me" style="font-weight: bold;">Coding Pages</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+        
+          <div>
+            <img src="/img/eth.png" alt="ETH">
+            
+              <p>ETH</p>
+            
+          </div>
+        
+      </div>
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/领域、子域和限界上下文/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/金字塔内部的结构/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    <a href="javascript:void(0);" id="site-reward">
+      <i class="fa fa-thumbs-up"></i>
+    </a>
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-twitter"></i>
+    </a>
+  
+  
+    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-facebook"></i>
+    </a>
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+  <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+  <script async>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', '');
+  </script>
+
+
+
+  <script async>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+  </script>
+
+
+
+  <script async>
+    (function(){
+    var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?":"https://jspassport.ssl.qhimg.com/11.0.1.js?";
+    document.write('<script src="' + src + '" id="sozz"><\/script>');
+    })();
+  </script>
+
+
+    
+  </body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Gary Huang" />
+  
+  
+  <title>CORS-跨域请求资源的协议 | 深思</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="HTTP协议," />
+  
+
+  
+  <meta name="description" content="Sense">
+
+  
+
+  <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz","appkey":"WaR7nrzhliHj9aVwdQzkdlGd","comment":false,"count":false},
+    welcome: {"enable":true,"interval":30},
+    start_time: "2019-03-07",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Gary Huang",
+    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: ""
+  };
+</script>
+
+  <script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+  
+</head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">SENSE</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 安静写些东西</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/shallotsh/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2018-06-09
+    </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    CORS-跨域请求资源的协议
+  </h1>
+  
+  <article class="passage-article">
+    <p>当一个资源从与该资源本身所在的服务器不同的域或端口请求一个资源时，资源会发起一个跨域 HTTP 请求。</p>
+<p>出于安全原因，浏览器限制从脚本内发起的跨源HTTP请求。 例如，XMLHttpRequest和Fetch API遵循同源策略。 这意味着使用这些API的Web应用程序只能从加载应用程序的同一个域请求HTTP资源，除非使用CORS协议请求资源。</p>
+<h1 id="什么是CORS"><a href="#什么是CORS" class="headerlink" title="什么是CORS"></a>什么是CORS</h1><p>CORS（Cross-Origin Resource Sharing 跨源资源共享），当一个请求url的协议、域名、端口三者之间任意一与当前页面地址不同即为跨域。</p>
+<p><a href="https://en.wikipedia.org/wiki/Same-origin_policy" target="_blank" rel="noopener">Web应用安全模型</a>，浏览器默认的默认模型，即同源策略，运行在web浏览器下的脚本（如JavaScript），<br>可以访问同一个域下的其他页面（资源）下的数据，但是禁止访问其他域下的资源数据。这种限制对于依赖cookie、session等信息的安全认证机制十分重要，减轻跨站信息泄露风险。<br>但是随着Web应用的发展，不同域下的资源共享需求越来越大。为了突破同源策略，一种解决方案是<a href="https://www.cnblogs.com/JerryTian/p/4194900.html" target="_blank" rel="noopener">JSONP</a>，可以说是中针对dom加载机制的hack技术，有较大的风险，而CORS是W3C提出的一种解决跨域资源共享的标准化协议，目前主流浏览器都支持该协议。</p>
+<p>CORS新增了一组Http首部字段，允许声明哪些源站有权限访问资源，使得跨站数据传输更安全，减少http跨域的风险。</p>
+<h1 id="CORS的作用"><a href="#CORS的作用" class="headerlink" title="CORS的作用"></a>CORS的作用</h1><p>为了改善网络应用程序，开发人员要求浏览器供应商允许跨域请求。跨域请求主要用于：</p>
+<ul>
+<li>调用XMLHttpRequest或fetchAPI通过跨站点方式访问资源</li>
+<li>网络字体，例如Bootstrap（通过CSS使用@font-face 跨域调用字体）</li>
+<li>通过canvas标签，绘制图表和视频</li>
+</ul>
+<h1 id="客户端的处理"><a href="#客户端的处理" class="headerlink" title="客户端的处理"></a>客户端的处理</h1><h2 id="简单跨域"><a href="#简单跨域" class="headerlink" title="简单跨域"></a>简单跨域</h2><p>当请求同时满足下面两个条件时，浏览器会直接发送GET请求，在同一个请求中做跨域权限的验证。</p>
+<p>请求方法是下列之一：</p>
+<ul>
+<li>GET</li>
+<li>HEAD</li>
+<li>POST</li>
+</ul>
+<p>请求头中的Content-Type请求头的值是下列之一：</p>
+<ul>
+<li>application/x-www-form-urlencoded</li>
+<li>multipart/form-data</li>
+<li>text/plain</li>
+</ul>
+<p>简单请求时，浏览器会直接发送跨域请求，并在请求头中携带Origin 的header，表明这是一个跨域的请求。服务器端接到请求后，<br>会根据自己的跨域规则，通过Access-Control-Allow-Origin和Access-Control-Allow-Methods响应头，来返回验证结果。<br>如果验证成功，则会直接返回访问的资源内容。</p>
+<h2 id="预检请求"><a href="#预检请求" class="headerlink" title="预检请求"></a>预检请求</h2><p>与前述简单跨域请求不同，“需预检的请求”要求必须首先使用<code>OPTIONS</code>方法发起一个预检请求到服务器，以获知服务器是否允许该实际请求。”预检请求“的使用，<br>可以避免跨域请求对服务器的用户数据产生未预期的影响。</p>
+<p>OPTIONS请求头部中会包含以下头部：<code>Origin</code>、<code>Access-Control-Request-Method</code>、<code>Access-Control-Request-Headers</code>。<br>服务器收到<code>OPTIONS</code>请求后，设置<code>Access-Control-Allow-Origin</code>、<code>Access-Control-Allow-Methods</code>、<code>Access-Control-Allow-Headers</code>头部与浏览器沟通来判断是否允许这个请求。<br>如果Preflighted requests验证通过，浏览器才会发送真正的跨域请求。</p>
+<h1 id="CORS增加的首部字段"><a href="#CORS增加的首部字段" class="headerlink" title="CORS增加的首部字段"></a>CORS增加的首部字段</h1><h2 id="Request-Header"><a href="#Request-Header" class="headerlink" title="Request Header"></a>Request Header</h2><pre>
+origin
+</pre>
+
+
+<p>Origin头在跨域请求或预先请求中，标明发起跨域请求的源域名。</p>
+<pre>
+Access-Control-Request-Method
+</pre>
+
+
+<p>用于表明跨域请求使用的实际HTTP方法</p>
+<pre>
+Access-Control-Request-Headers
+</pre>
+
+
+<p>用于在预先请求时，告知服务器要发起的跨域请求中会携带的请求头信息</p>
+<h2 id="Response-Header"><a href="#Response-Header" class="headerlink" title="Response Header"></a>Response Header</h2><pre>
+Access-Control-Allow-Origin
+</pre>
+
+
+
+<p> 服务器端验证后的允许的跨域请求域名，可以是一个具体的域名或是一个*。</p>
+<pre>
+Access-Control-Expose-Headers
+</pre>
+
+
+<p>用于允许返回给跨域请求的响应头列表，在列表中的响应头的内容，才可以被浏览器访问。</p>
+<pre>
+Access-Control-Max-Age
+</pre>
+
+
+<p>用于告知浏览器可以将预先检查请求返回结果缓存的时间，在缓存有效期内，浏览器会使用缓存的预先检查结果判断是否发送跨域请求。</p>
+<pre>
+Access-Control-Allow-Credentials
+</pre>
+
+
+<p>用于告知浏览器当withCredentials属性设置为true时，是否可以显示跨域请求返回的内容。简单请求时，浏览器会根据此响应头决定是否显示响应的内容。预先验证请求时，浏览器会根据此响应头决定在发送实际跨域请求时，是否携带认证信息。</p>
+<pre>
+Access-Control-Allow-Methods
+</pre>
+
+<p> 用于告知浏览器可以在实际发送跨域请求时，可以支持的请求方法，可以是一个具体的方法列表或是一个*（表示任意方法）</p>
+<pre>
+Access-Control-Allow-Headers
+</pre>
+
+<p>用于告知浏览器可以在实际发送跨域请求时，可以支持的请求头，可以是一个具体的请求头列表或是一个*（表示任意请求头）</p>
+<h1 id="基于CORS的CSRF攻击"><a href="#基于CORS的CSRF攻击" class="headerlink" title="基于CORS的CSRF攻击"></a>基于CORS的CSRF攻击</h1><p>CSRF攻击的大致原理：</p>
+<ul>
+<li>用户通过浏览器，访问正常网站A（例如交易平台），通过用户的身份认证（比如用户名/密码）成功；</li>
+<li>网站A产生token等Cookie信息并返回到用户浏览器； </li>
+<li>用户保持A网站页面登录状态的情况下，在同一浏览器中，打开一个新的TAB页访问恶意网站B；</li>
+<li>网站B接收到用户请求后，返回一些攻击性代码，请求A网站的资源（比如发起交易）；</li>
+<li>浏览器执行恶意代码，在用户不知情的情况下携带Cookie信息，向网站A发出请求；</li>
+</ul>
+<ul>
+<li>网站A根据用户的Cookie信息核实用户身份（此时用户在A网站是已登录状态），A网站会处理该请求，导致来自网站B的恶意请求被执行；</li>
+</ul>
+<p>当然，一般涉及到钱的网站都会有安全审计检查，这种漏洞几乎是不存在的。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="https://www.w3.org/TR/cors/" target="_blank" rel="noopener">CORS</a></li>
+<li><a href="https://enable-cors.org/" target="_blank" rel="noopener">enable-cors</a></li>
+<li><a href="https://blog.csdn.net/z_l_ming/article/details/54969019" target="_blank" rel="noopener">用XMLHTTPRequest来进行ajax异步数据交交互</a></li>
+</ul>
+<ul>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS" target="_blank" rel="noopener">HTTP访问控制（CORS）</a></li>
+</ul>
+
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#什么是CORS"><span class="toc-text">什么是CORS</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CORS的作用"><span class="toc-text">CORS的作用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#客户端的处理"><span class="toc-text">客户端的处理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#简单跨域"><span class="toc-text">简单跨域</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#预检请求"><span class="toc-text">预检请求</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CORS增加的首部字段"><span class="toc-text">CORS增加的首部字段</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Request-Header"><span class="toc-text">Request Header</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Response-Header"><span class="toc-text">Response Header</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#基于CORS的CSRF攻击"><span class="toc-text">基于CORS的CSRF攻击</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: Gary Huang</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://blog.sense.ink/passages/CORS-跨域请求资源协议/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/HTTP协议/"><i class="fa fa-tags"></i>HTTP协议</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">博客推荐</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://waylau.gitbooks.io/essential-netty-in-action/" target="_blank">Netty</a>
+          </span>
+        
+          <span class="site-footer-item">
+            <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+          </span>
+        
+      </div>
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">系列教程</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+          </span>
+        
+          <span class="site-footer-item">
+            <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+          </span>
+        
+      </div>
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">抓到我</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://segmentfault.com/" target="_blank">思否</a>
+          </span>
+        
+      </div>
+    
+    <!--<div class="site-footer-info">-->
+      <!--<i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>-->
+    <!--</div>-->
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: shallotsh@gmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Hosted by <a href="https://pages.coding.me" style="font-weight: bold;">Coding Pages</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+        
+          <div>
+            <img src="/img/eth.png" alt="ETH">
+            
+              <p>ETH</p>
+            
+          </div>
+        
+      </div>
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/Elasticsearch中的基本概念/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/MySQL体系结构和存储引擎/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    <a href="javascript:void(0);" id="site-reward">
+      <i class="fa fa-thumbs-up"></i>
+    </a>
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-twitter"></i>
+    </a>
+  
+  
+    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-facebook"></i>
+    </a>
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+  <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+  <script async>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', '');
+  </script>
+
+
+
+  <script async>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+  </script>
+
+
+
+  <script async>
+    (function(){
+    var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?":"https://jspassport.ssl.qhimg.com/11.0.1.js?";
+    document.write('<script src="' + src + '" id="sozz"><\/script>');
+    })();
+  </script>
+
+
+    
+  </body>
+</html>

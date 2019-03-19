@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Gary Huang" />
+  
+  
+  <title>分布式服务数据一致性问题解决方案 | 深思</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="分布式程序设计,算法,分布式一致性," />
+  
+
+  
+  <meta name="description" content="背景知识存在数据一致性问题起源于单体服务性能已经不能满足业务需求，由此衍生出服务拆分和数据副本，然后就有了分布式服务数据一致性问题。">
+
+  
+
+  <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz","appkey":"WaR7nrzhliHj9aVwdQzkdlGd","comment":false,"count":false},
+    welcome: {"enable":true,"interval":30},
+    start_time: "2019-03-07",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Gary Huang",
+    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: ""
+  };
+</script>
+
+  <script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+  
+</head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">SENSE</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 安静写些东西</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/shallotsh/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2018-09-27
+    </span>
+    
+      <span>
+        | <a href="/categories/分布式程序设计/"><i class="fa fa-bookmark"></i>分布式程序设计</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    分布式服务数据一致性问题解决方案
+  </h1>
+  
+  <article class="passage-article">
+    <h2 id="数据一致性问题分类"><a href="#数据一致性问题分类" class="headerlink" title="数据一致性问题分类"></a>数据一致性问题分类</h2><ul>
+<li>主库、从库和缓存数据一致性</li>
+</ul>
+<p>保证数据库的高性能和高可用，设计时通常会采用主从架构并引入缓存，而写库与写缓存、主库与从库之间的同步都存在时间差，在这个时间差的窗口期内就产生了数据不一致。暂时还没有保证高性能的同时又保持强一致性的方案。</p>
+<ul>
+<li>多副本数据之间的一致性</li>
+</ul>
+<p>一份数据会有多个副本并存储到不同的节点上，如一主多从架构的数据库、ES、MongoDB等等。客户端可以访问任何一个节点进行读写操作，常用的解决方案是基于Paxos、ZAB、Raft、Quorum、Gossip等的开源实现。</p>
+<ul>
+<li>微服务（分布式服务）之间的数据一致性</li>
+</ul>
+<p>不同的服务存在着多种方式的交付，分别操作不同的数据库库/表，而且这些数据库/表需要保持一致。如何解决分布式服务之间的数据一致性问题，正式下文将要讨论的部分。</p>
+<h2 id="一致性模型"><a href="#一致性模型" class="headerlink" title="一致性模型"></a>一致性模型</h2><ul>
+<li>强一致性</li>
+<li>弱一致性</li>
+<li>最终一致性</li>
+</ul>
+<h2 id="保证数据一致性的基本原理"><a href="#保证数据一致性的基本原理" class="headerlink" title="保证数据一致性的基本原理"></a>保证数据一致性的基本原理</h2><ul>
+<li>ACID</li>
+<li>CAP</li>
+<li>BASE</li>
+</ul>
+<h2 id="分布式一致性协议"><a href="#分布式一致性协议" class="headerlink" title="分布式一致性协议"></a>分布式一致性协议</h2><p>两阶段提交协议、三阶段提交协议、TCC协议、Paxos协议、ZAB协议、Quorum协议、Raft协议、Gossip协议等。（可以参看《从paxos到Zookeeper分布式一致性原理和实践》）</p>
+<h2 id="柔性事务分类"><a href="#柔性事务分类" class="headerlink" title="柔性事务分类"></a>柔性事务分类</h2><p>柔性事务分为：两阶段型、补偿型、异步确保型、最大努力通知型</p>
+<ul>
+<li>二阶段提交<br>分布式事务二阶段提交，对应技术上的 XA、JTA/JTS，这是分布式环境下事务处理的典型模式</li>
+<li>补偿性<br>TCC 型事务（Try-Confirm-Cancel）可以归为补偿型</li>
+<li>异步确保型<br>将一些有同步冲突的事务操作变为异步操作，避免对数据库事务的争用，如消息事务机制</li>
+<li>最大努力通知型<br>通过通知服务器（消息通知）进行，允许失败，有补充机制</li>
+</ul>
+<h1 id="分布式服务间的数据一致性"><a href="#分布式服务间的数据一致性" class="headerlink" title="分布式服务间的数据一致性"></a>分布式服务间的数据一致性</h1><p>随着业务的发展，可能是为了满足性能、维护性等原因，需要将原来通过本地接口交互的模块拆分成可独立部署的应用，并通过RPC或者消息来交互，这样就出现了分布式服务。</p>
+<p>如图，在集中式架构时代，要保证订单表和商品库存表之间的一致性，只需要一个本地事务（ACID）即可保证强一致性；拆分成分布式服务后，订单表/库由订单服务操作，库存表/库由库存服务操作，但是业务逻辑还是需要保证两者数据的一致性，这就引出了分布式事务的概念。</p>
+<p>由于分布式事务之间的RPC或者消息调用可能会因为网络异常等问题而失败，这样就可能产生数据不一致的情况。</p>
+<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/e-shop.png" alt="e-shop"></div></p>
+<center>图一 某电商系统结构图</center>
+
+<p>（图一是个简陋的电商系统结构，仅用于说明分布式服务之间的数据一致性问题）</p>
+<h1 id="常见调用模式的数据一致性问题解决方案"><a href="#常见调用模式的数据一致性问题解决方案" class="headerlink" title="常见调用模式的数据一致性问题解决方案"></a>常见调用模式的数据一致性问题解决方案</h1><h2 id="接口同步调用模式"><a href="#接口同步调用模式" class="headerlink" title="接口同步调用模式"></a>接口同步调用模式</h2><p>同步调用模式适用于业务系统中对接口响应时间不敏感的服务，或者大规模、高并发的短小操作且依赖返回值的的场景，例如交易与库存的交互等。</p>
+<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/distribution-2.svg" alt="distribution-2"></div></p>
+<center>图二 同步调用模式</center>
+
+<p><strong>分析</strong>：A服务同步调用B服务的接口并等待返回，后续的流程依赖B服务的返回结果，A可能会得到结果有三种：</p>
+<ul>
+<li>正常返回结果（明确的成功或者失败）</li>
+<li>请求阶段超时或者异常，这时B服务未收到请求</li>
+<li>返回阶段超时或者异常，这时B服务已经收到了A的请求并且返回了结果</li>
+</ul>
+<p><strong>一致性方案</strong>：1.调用方重试；2.TCC； 3.GTS</p>
+<p>1.调用方重试方案</p>
+<p>该方案适用于一个从服务（例如B服务）的情况，有几点需要注意：1）查询重试后依然失败（可能性低）-&gt; 告警 -&gt; 兜底处理方案；2）B服务需要支持操作幂等；3）控制重试次数。</p>
+<p>点击查看伪代码逻辑:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">下单减库存方法() &#123;</span><br><span class="line"></span><br><span class="line">    // 1.准备操作</span><br><span class="line"></span><br><span class="line">    // 2.重试调用B服务</span><br><span class="line"></span><br><span class="line">    result = RetryUtil &#123;</span><br><span class="line"></span><br><span class="line">        while(retryCount &lt; MAX_RETRY_COUNT) &#123;</span><br><span class="line"></span><br><span class="line">            try &#123;</span><br><span class="line"></span><br><span class="line">            	// 调用B服务</span><br><span class="line"></span><br><span class="line">                // case1：网络超时或异常（catch分支）</span><br><span class="line"></span><br><span class="line">                // case2：扣减库存成功，result=成功（return）</span><br><span class="line"></span><br><span class="line">                // case3：扣减库存失败，result=失败（return）</span><br><span class="line"></span><br><span class="line">                return rpc.扣减库存();</span><br><span class="line"></span><br><span class="line">            &#125; catch (Exception e) &#123;</span><br><span class="line"></span><br><span class="line">                if (retryCount == MAX_RETRY_COUNT) &#123;</span><br><span class="line"></span><br><span class="line">                    // 报警，人工处理或者系统兜底方案处理逻辑</span><br><span class="line"></span><br><span class="line">                    // 抛出异常，中断后续流程；或者将异常封装</span><br><span class="line"></span><br><span class="line">                    throw 自定义异常; </span><br><span class="line"></span><br><span class="line">                &#125; else &#123;</span><br><span class="line"></span><br><span class="line">                	retryCount++;</span><br><span class="line"></span><br><span class="line">                	</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    // 3.后续操作</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2.TCC方案</p>
+<p>该方案适用于多个重服务场景，TCC二阶段提交协议的基础上提出的一种分布式事务一致性协议，对应于阿里的产品就DTX（DTS的升级版）。</p>
+<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/distribution-3.png" alt="distribution-3"></div></p>
+<center>图三 TCC原理</center>
+
+<p>Try-Confirm-Cancel（TCC）是初步操作（Try）、确认操作（Confirm）和取消操作（Cancel）三种操作的缩写，这三种操作的业务含义如下：</p>
+<p>Try 阶段：对业务系统做检测及资源预留；</p>
+<p>Confirm 阶段：对业务系统做确认提交。默认 Confirm 阶段是不会出错的，只要 Try 成功，Confirm 一定成功；</p>
+<p>Cancel 阶段：当业务执行出现错误，需要回滚的状态下，执行业务取消，释放预留资源。</p>
+<p>TCC 是一种编程模型，是应用层的 2PC；TCC 的 3 个操作均由编码实现，通过编码实现了 2PC 资源管理器的功能；通过三个接口很好的规避了长时间数据加锁的问题，业务表在每个接口调用完毕即可释放，这很大程度上提高了业务的并发度。</p>
+<p>重点是理解TCC原理，需要用时也可以自行实现。</p>
+<p>比较流行的开源实现有 <a href="https://github.com/liuyangming/ByteTCC" target="_blank" rel="noopener">ByteTcc</a>  、 <a href="https://github.com/changmingxie/tcc-transaction" target="_blank" rel="noopener">tcc-transaction</a> </p>
+<p>3.GTS方案</p>
+<p>GTS（Global Transaction Service ，简称GTS）方案是阿里巴巴提供的一种分布式服务（特别是微服务）架构中的分布式事务一站式解决方案，其基本思路是将分布式事务与具体业务分离，在平台层面开发通用的事务中间件GTS，由事务中间件协调各服务的调用一致性，负责分布式事务的生命周期管理、服务调用失败的自动回滚。阿里官方宣称，这几乎适用于各种场景，个人将GTS方案视为一种XA协议的商业加强版版实现，GTS的MT模式等价于TCC模式。</p>
+<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/distribution-4.png" alt="distribution-4"></div></p>
+<center>图四 GTS架构</center>
+
+<p>GTS中间件主要包括客户端（GTS Client）、资源管理器（GTS RM）和事务协调器（GTS Server）三部分。GTS Client主要完成事务的发起与结束。GTS RM完成分支事务的开启、提交、回滚等操作。GTS Server主要负责分布式事务的整体推进，事务生命周期的管理。 </p>
+<p>延伸阅读<br><a href="https://www.jianshu.com/p/81c5ca88cfbe" target="_blank" rel="noopener">GTS–阿里巴巴分布式事务全新解决方案</a></p>
+<p><a href="https://blog.csdn.net/qq_36510261/article/details/78981755" target="_blank" rel="noopener">GTS原理分析</a></p>
+<h2 id="接口异步调用模式"><a href="#接口异步调用模式" class="headerlink" title="接口异步调用模式"></a>接口异步调用模式</h2><p>异步调用模式适用于非核心链路上负载较高的处理环节，这个环节经常耗时较长，并且对时效性要求不高。例如，用户提现时，账户系统和提现系统的交互（CASE-1）；提现系统和三方系统（银行系统或者三方托管系统）的交互（CASE-2）</p>
+<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/distribution-5.svg" alt="distribution-5"></div></p>
+<center>图五 异步调用模式</center>
+
+<p><strong>分析</strong>：A服务调用B服务，B服务先受理请求并落库，状态是待处理，B服务处理请求很耗时，或者要依赖其他的服务，B服务处理完后通知A服务或者A服务定时去查询B服务的处理结果。这种交互模式下，对于CASE-1，第1步和第2步同接口同步调用模式，第3步同消息异步处理模式；对于CASE-2，相当于两次接口同步调用模式。</p>
+<p><strong>一致性方案</strong>：服务被调方最大努力处理方案。由于B服务中请求有落库，所以可以用定时任务不断重试尽最大努力将请求处理出结果。处理后，将请求状态设置成对应的结果落库。然后再通知A服务或者A服务异步主动查询。</p>
+<p>伪代码：</p>
+<p>点击展开内容<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">受理请求方法() &#123;</span><br><span class="line"></span><br><span class="line">    // 1.请求落库，状态为待处理</span><br><span class="line"></span><br><span class="line">    // 2.返回受理结果</span><br><span class="line"></span><br><span class="line">    if (落库成功) &#123;</span><br><span class="line"></span><br><span class="line">        // 返回受理成功</span><br><span class="line"></span><br><span class="line">    &#125; else &#123;</span><br><span class="line"></span><br><span class="line">        // 返回受理失败</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">定时任务处理请求方法() &#123;</span><br><span class="line"></span><br><span class="line">    // 1.扫描待处理请求</span><br><span class="line"></span><br><span class="line">    try &#123;</span><br><span class="line"></span><br><span class="line">        // 2.处理请求</span><br><span class="line"></span><br><span class="line">        if (处理成功) &#123;</span><br><span class="line"></span><br><span class="line">            // 设置请求处理状态为处理成功</span><br><span class="line"></span><br><span class="line">        &#125; eles &#123;</span><br><span class="line"></span><br><span class="line">            //  设置请求处理状态为处理失败</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125; catch (Exception e) &#123;</span><br><span class="line"></span><br><span class="line">        // 不做任何操作，请求状态依旧为待处理</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 3.消息通知A服务处理结果或者等待A服务查询处理结果</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="消息异步处理"><a href="#消息异步处理" class="headerlink" title="消息异步处理"></a>消息异步处理</h2><p>消息异步处理模式与接口异步调用模式类似，多应用于非核心链路上负载较高的处理环节中，井且服务的上游不关心下游的处理结果，下游也不需要向上游返回处理结果。例如，在电商系统中，用户下订单支付且交易成功后，发送消息给物流系统或者账务系统进行后续的处理。</p>
+<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/distribution-6.svg" alt="distribution-6"></div></p>
+<center>图六 消息异步处理过程</center>
+
+<p><strong>分析</strong>：A服务将B服务需要的信息通过消息中间件传递给B服务，A服务无需知道B服务的处理结果；消息生产者要确保消息发送成功，消息消费者要确保消息消费成功。</p>
+<p><strong>一致性方案</strong>：生产者尽最大努力通知，消费者最大努力处理，具体方案根据消息队列是否支持事务而略有不同，消息方处理需实现幂等。</p>
+<p>1.非事务性消息（如mafka/kafka）</p>
+<p>生产者先执行本地事务并将消息落库，状态标记为待发送，然后发送消息，如果发送成功，则将消息改为发送成功，另设一个定时任务定时从库中拉取一定时间内的待发送状态的消息进行发送操作；消费者通过ack机制将消费结果反馈给消息队列服务器。</p>
+<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/distribution-7.svg" alt="distribution-7"></div></p>
+<center>图七 非事务消息一致性方案</center>
+
+<p>也可以通过GTS方案，将非事务性消息和本地事务操作放到一个全局的事务中，这样也能实现本地事务和消息发送在同一个事务中，从而达到分布式环境数据一致。</p>
+<p>2.事务消息（rocketmq/rabbitmq）</p>
+<p>带事务机制的消息发送的时候，保证了和本地事务的一致，消费者实现还是通过ack机制来反馈消费完成。</p>
+<p><div align="center"><img src="http://oz4nn1wia.bkt.clouddn.com/distribution-8.png" alt="distribution-8"></div></p>
+<center>图八 事务消息一致性方案</center>
+
+<p>注：消息异步处理模式中一致性方案的实现依赖于消费组的处理逻辑的幂等性。</p>
+<h1 id="实现操作幂等的几种方法"><a href="#实现操作幂等的几种方法" class="headerlink" title="实现操作幂等的几种方法"></a>实现操作幂等的几种方法</h1><p>所有逻辑实现幂等不现实，只需要在关键逻辑上实现幂等即可，大体思路是根据是否有业务状态来决定实现操作幂等的逻辑。</p>
+<ul>
+<li>有业务状态，业务逻辑来保证幂等</li>
+<li>无业务状态，业务唯一ID保证幂</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>同步调用模式，服务调用方查询重试、TCC或者GTS方案</p>
+<p>异步调用模式，服务被调方最大努力处理方案</p>
+<p>消息异步处理，生产者最大努力通知，消费者最大努力处理方案</p>
+<p>尽力给每个服务操作接口提供一个查询接口，用来部输出操作执行的状态</p>
+<p>不要在本地事务中调用远程服务，如果远程服务出现了问题，则会拖长事务，导致应用服务器占用太多的数据库连接，让服务器负载迅速攀升，在严重情况下会压垮数据库。</p>
+<p>最后一道防线保证最终一致性 - 对账系统</p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#数据一致性问题分类"><span class="toc-text">数据一致性问题分类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一致性模型"><span class="toc-text">一致性模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#保证数据一致性的基本原理"><span class="toc-text">保证数据一致性的基本原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分布式一致性协议"><span class="toc-text">分布式一致性协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#柔性事务分类"><span class="toc-text">柔性事务分类</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#分布式服务间的数据一致性"><span class="toc-text">分布式服务间的数据一致性</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#常见调用模式的数据一致性问题解决方案"><span class="toc-text">常见调用模式的数据一致性问题解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#接口同步调用模式"><span class="toc-text">接口同步调用模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#接口异步调用模式"><span class="toc-text">接口异步调用模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#消息异步处理"><span class="toc-text">消息异步处理</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#实现操作幂等的几种方法"><span class="toc-text">实现操作幂等的几种方法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: Gary Huang</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://blog.sense.ink/passages/分布式服务数据一致性问题解决方案/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/算法/"><i class="fa fa-tags"></i>算法</a>
+     
+      <a href="/tags/分布式一致性/"><i class="fa fa-tags"></i>分布式一致性</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">博客推荐</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://waylau.gitbooks.io/essential-netty-in-action/" target="_blank">Netty</a>
+          </span>
+        
+          <span class="site-footer-item">
+            <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+          </span>
+        
+      </div>
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">系列教程</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+          </span>
+        
+          <span class="site-footer-item">
+            <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+          </span>
+        
+      </div>
+    
+      <div class="site-footer-col">
+        <h5 class="site-footer-title">抓到我</h5>
+        
+          <span class="site-footer-item">
+            <a href="https://segmentfault.com/" target="_blank">思否</a>
+          </span>
+        
+      </div>
+    
+    <!--<div class="site-footer-info">-->
+      <!--<i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>-->
+    <!--</div>-->
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: shallotsh@gmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Hosted by <a href="https://pages.coding.me" style="font-weight: bold;">Coding Pages</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+        
+          <div>
+            <img src="/img/eth.png" alt="ETH">
+            
+              <p>ETH</p>
+            
+          </div>
+        
+      </div>
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="javascript:void(0);" data-enable="false">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/写给工程师的十条精进原则/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    <a href="javascript:void(0);" id="site-reward">
+      <i class="fa fa-thumbs-up"></i>
+    </a>
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-twitter"></i>
+    </a>
+  
+  
+    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-facebook"></i>
+    </a>
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+  <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+  <script async>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', '');
+  </script>
+
+
+
+  <script async>
+  (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      if (curProtocol === 'https') {
+          bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+      }
+      else {
+          bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+      }
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+  })();
+  </script>
+
+
+
+  <script async>
+    (function(){
+    var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?":"https://jspassport.ssl.qhimg.com/11.0.1.js?";
+    document.write('<script src="' + src + '" id="sozz"><\/script>');
+    })();
+  </script>
+
+
+    
+  </body>
+</html>
