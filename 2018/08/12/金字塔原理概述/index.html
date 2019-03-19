@@ -6,16 +6,16 @@
   <meta name="author" content="Gary Huang" />
   
   
-  <title>Elasticsearch中的基本概念 | 深思</title>
+  <title>金字塔原理概述 | 深思</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
   
-    <meta name="keywords" content="Elasticsearch,搜索技术," />
+    <meta name="keywords" content="方法论,金字塔原理,软素质," />
   
 
   
-  <meta name="description" content="Sense">
+  <meta name="description" content="一种重点突出、逻辑清晰、层次分明、简单易懂的思考方式、沟通方式、规范动作">
 
   
 
@@ -157,8 +157,12 @@
   <div class="passage">
   <div class="passage-meta">
     <span>
-      <i class="fa fa-calendar"></i>2018-08-02
+      <i class="fa fa-calendar"></i>2018-08-12
     </span>
+    
+      <span>
+        | <a href="/categories/方法论/"><i class="fa fa-bookmark"></i>方法论</a>
+      </span>
     
     
       <span>
@@ -167,113 +171,22 @@
     
   </div>
   <h1 class="passage-title">
-    Elasticsearch中的基本概念
+    金字塔原理概述
   </h1>
   
   <article class="passage-article">
-    <ul>
-<li>索引词(term)</li>
-</ul>
-<blockquote>
-<p>索引词（term）是一个能够被索引的精确值，区分大小写，可以通过term查询进行精确的搜索。</p>
-</blockquote>
-<ul>
-<li><p>文本(text)</p>
-<blockquote>
-<p>文本是一段普通的非结构化文字。通常，文本会被分析成一个个的索引词，存储在Elasticsearch的索引库中。为了让文本能够进行搜索，文本字段需要事先进行分析；当对文本中的关键字进行查询的时候，搜索引擎应该根据搜索条件搜索出原文本。</p>
-</blockquote>
-</li>
-<li><p>分析(analysis)</p>
-</li>
-</ul>
-<blockquote>
-<p>分析是将文本转换为索引词的过程，分析的结果依赖于分词器。</p>
-</blockquote>
-<ul>
-<li>集群(cluster)</li>
-</ul>
-<blockquote>
-<p>集群由一个或多个节点组成，对外提供服务，对外提供索引和搜索功能。</p>
-</blockquote>
-<ul>
-<li>节点(node)</li>
-</ul>
-<blockquote>
-<p>一个节点是一个逻辑独立的服务，它是集群的一部分，可以存储数据，并参与集群的索引和搜索功能。</p>
-</blockquote>
-<p>一个节点可以被配置为加入一个特点的集群。</p>
-<ul>
-<li>路由(routing)</li>
-</ul>
-<blockquote>
-<p>当存储一个文档的时候，它会存储在唯一的主分片中，具体哪个分片是通过散列值进行选择。</p>
-</blockquote>
-<ul>
-<li>分片(shard)</li>
-</ul>
-<blockquote>
-<p>分片是lucene实例。索引是指向主分片和副本分片的逻辑空间。</p>
-</blockquote>
-<p>一个索引可以存储很大的数据，这些空间可以超过一个节点的物理存储的限制。为了解决这种存储限制，以及随之带来的单机搜索大数据的性能问题，Elasticsearch将索引分解成多个分片，每个分片都是一个全功能的、独立的单元，可以托管在集群中的任何节点。</p>
-<ul>
-<li>主分片(primary shard)</li>
-</ul>
-<blockquote>
-<p>每个文档可以存储在一个分片中，存储一个文档时，系统会首先存储在主分片中，然后复制到不同的分片。</p>
-</blockquote>
-<ul>
-<li>副本分片(replica sahrd)</li>
-</ul>
-<blockquote>
-<p>每一个分片有零个或者多个分片，副本分片是主分片的复制，主要有两个目的：</p>
-<ol>
-<li>增加高可用性</li>
-<li>提高性能。默认情况下，一个主分片会有一个副本分片，但是副本数量可以在后面动态地配置增加。</li>
-</ol>
-</blockquote>
-<ul>
-<li>索引(index)</li>
-</ul>
-<blockquote>
-<p>索引是具有相同结构的文档集合。</p>
-</blockquote>
-<ul>
-<li>类型(type)</li>
-</ul>
-<blockquote>
-<p>在索引中，可以定义一个或者多个类型。</p>
-</blockquote>
-<p>但是在后续的版本中，type可能会被限制为一种类型，甚至取消。</p>
-<ul>
-<li>文档(document)</li>
-</ul>
-<blockquote>
-<p> 文档是存储在Elasticsearch中的一个json格式的字符串。它就像关系数据库中表的一行。</p>
-</blockquote>
-<ul>
-<li>映射(mapping)</li>
-</ul>
-<blockquote>
-<p>映射像关系数据库中的表结构。</p>
-</blockquote>
-<ul>
-<li>字段(field)</li>
-</ul>
-<blockquote>
-<p>文档中包含零个或者多个字段，文档可以是一个简单的值（例如字符串、整数、日期），也可以是一个数组或者嵌套对象。</p>
-</blockquote>
-<ul>
-<li>来源字段(source field)</li>
-</ul>
-<blockquote>
-<p>默认情况下，你的原文档将存储在_source字段中，当你查询的时也是返回这个字段。</p>
-</blockquote>
-<ul>
-<li>主键(ID)</li>
-</ul>
-<blockquote>
-<p>ID是一个文件的为一个标识。</p>
-</blockquote>
+    <h2 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h2><p>一种重点突出、逻辑清晰、层次分明、简单易懂的思考方式、沟通方式、规范动作</p>
+<h2 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h2><p>结论先行，以上统下，归类分组，逻辑递进。<br>先重要后次要，先总结后具体，先框架后细节，先结论后原因，先结果会后过程，先论点后论据。</p>
+<h2 id="训练表达者"><a href="#训练表达者" class="headerlink" title="训练表达者"></a>训练表达者</h2><p>挖掘受众意图、关注点、利益点、兴趣点，想清楚说什么（内容），怎么说（思路，结构），掌握沟通的标准结构和规范动作</p>
+<h2 id="解决的问题"><a href="#解决的问题" class="headerlink" title="解决的问题"></a>解决的问题</h2><h3 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h3><p>学会左、右脑全脑思考，提高结构化思考能力，做到全、准、快</p>
+<h3 id="书面表达，公文写作"><a href="#书面表达，公文写作" class="headerlink" title="书面表达，公文写作"></a>书面表达，公文写作</h3><p>会挖掘读者的关注点、兴趣点、需求点、利益点，能使用金字塔原理的4个原则，搭建逻辑清晰的常用公文写作框架，掌握写序言的四要素，归类分组的MECE原则，能够做到重点突出、逻辑清晰、简明扼要，让人看得懂、愿意看、记得住。快速写文章，缩短写作时间，减少修改次数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">紧急的写作（方案）任务往往没有足够的时间让你反复琢磨结构，修改内容，学习金字塔原理，掌握各种文档的写作结构（其实是对各种场景成功文案的总结）和问题拆分方法，可以达到快速成文，而且质量还不错的效果。</span><br></pre></td></tr></table></figure>
+<h3 id="口头表达"><a href="#口头表达" class="headerlink" title="口头表达"></a>口头表达</h3><p>说话、演讲、讲课，能够使用金字塔原理的基本原则，回答受众最常用的四类问题：“是什么？为什么？如何做？好不好？”表达时重点突出、条理清晰，让人愿意听、听得懂、记得住，成为思路清晰，言简意赅的人。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">良好的口头表达就是节约对话双方的时间，间接地在珍惜生命。</span><br></pre></td></tr></table></figure>
+<h3 id="管理下属"><a href="#管理下属" class="headerlink" title="管理下属"></a>管理下属</h3><p>能够运用金字塔原理，考虑全面、周到、严谨，分配任务、设计流程不重不漏。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">全面考虑问题（需求）、分析问题、设计解决方案、拆分工作，非常重要，直接影响到管理者的工作效率和下属的绩效。</span><br></pre></td></tr></table></figure>
+<h3 id="培训师开发课程和讲课"><a href="#培训师开发课程和讲课" class="headerlink" title="培训师开发课程和讲课"></a>培训师开发课程和讲课</h3><p>学会使用金字塔原理搭建框架结构、组织素材、重点突出、逻辑清晰、通俗易懂。</p>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">从一篇文档，一段对话，到一门课程，涉及的内容量通常会原来越大，组织的难度也越来越高，但是遵循的基本原理可以是一致的，即金字塔原理。每一门课程都有一个中心主题（即课程的核心主题），中心主题之下又有多个分主题（通常对应课程的不同阶段应该掌握的内容，按难易程度或者内容的承接性自然有序），不同阶段应该学习的内容也可以进行分级（可以分配必须掌握和选修）...以此方式进行深入的思考和划分设计出来的课程，自然是比较容易学习的。</span><br></pre></td></tr></table></figure>
 
   </article>
   <aside class="table-content" id="site-toc">
@@ -282,7 +195,7 @@
     <span>目录</span>
   </div>
   <div class="table-content-main">
-    
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基本原理"><span class="toc-text">基本原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基本结构"><span class="toc-text">基本结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#训练表达者"><span class="toc-text">训练表达者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解决的问题"><span class="toc-text">解决的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#思考"><span class="toc-text">思考</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#书面表达，公文写作"><span class="toc-text">书面表达，公文写作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#口头表达"><span class="toc-text">口头表达</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#管理下属"><span class="toc-text">管理下属</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#培训师开发课程和讲课"><span class="toc-text">培训师开发课程和讲课</span></a></li></ol></li></ol>
   </div>
 </aside>
   
@@ -291,7 +204,7 @@
       
         <div>
           原文链接: 
-          <a href="" target="_blank">http://blog.sense.ink/passages/Elasticsearch中的基本概念/</a>
+          <a href="" target="_blank">http://blog.sense.ink/2018/08/12/金字塔原理概述/</a>
         </div>
       
       <div>
@@ -302,9 +215,9 @@
   
     <div class="passage-tags">
      
-      <a href="/tags/Elasticsearch/"><i class="fa fa-tags"></i>Elasticsearch</a>
+      <a href="/tags/金字塔原理/"><i class="fa fa-tags"></i>金字塔原理</a>
      
-      <a href="/tags/搜索技术/"><i class="fa fa-tags"></i>搜索技术</a>
+      <a href="/tags/软素质/"><i class="fa fa-tags"></i>软素质</a>
     
     </div>
   
@@ -396,10 +309,10 @@
 
 <div class="bottom-bar">
   <div class="bottom-bar-left">
-    <a href="/passages/金字塔原理概述/" data-enable="true">
+    <a href="/2018/08/12/为什么要使用金字塔结构/" data-enable="true">
       <i class="fa fa-arrow-left"></i>
     </a>
-    <a href="/passages/CORS-跨域请求资源协议/" data-enable="true">
+    <a href="/2018/08/02/Elasticsearch中的基本概念/" data-enable="true">
       <i class="fa fa-arrow-right"></i>
     </a>
   </div>
